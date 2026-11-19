@@ -1,0 +1,21 @@
+<aura:component controller="AddProductToOppTest" implements="flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction">
+	<!--at the place of error message use toast-->
+	<aura:attribute name="flow" type="String" default=""/>
+	
+	<!--<aura:handler name="init" value="{!this}" action="{!c.initial}"/>-->
+    
+    <!--<span style="cursor:pointer;width:35px;height:35px;">
+        <lightning:spinner variant="brand" size="large" alternativeText="Please wait while loading" aura:id="mainSpin" class="mainSpinClass"/>
+    </span>-->
+	
+	
+	<aura:if isTrue="{!equals(v.flows,'flow1')}">
+            
+    </aura:if>
+	
+	<aura:if isTrue="{!equals(v.flows,'flow2')}">
+            
+    </aura:if>
+	
+	
+</aura:component>

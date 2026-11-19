@@ -1,0 +1,303 @@
+<aura:component controller="AddProductToOpp" implements="flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" >
+    <aura:attribute name="scanValue" type="String" default=""/>
+    <aura:attribute name="name" type="String" default=""/>
+    <aura:attribute name="proCode" type="String" default=""/>
+    <aura:attribute name="quantity" type="String"/>
+    <aura:attribute name="UnitPrice" type="String"/>
+    <aura:attribute name="pribook" type="String"/>
+    <aura:attribute name="prodFam" type="String"/>
+    <aura:attribute name="listOfProduct" type="product2[]" />
+    <aura:attribute name="scanProduct" type="product2[]" />    
+    <aura:attribute name="recordId" type="String" />
+    <aura:attribute name="ifSuccess" type="boolean" default="false"/>
+    <aura:attribute name="isRecFetch" type="boolean" default="false"/>
+    <aura:attribute name="isProSel" type="boolean" default="false"/>
+    <aura:attribute name="counter" type="integer" default="0"/>
+    <aura:attribute name="pricebook" type="String" default=""/>
+    <aura:attribute name="allpribook" type="String"/>
+    <aura:attribute name="optionsPB" type="List"/>
+    
+    <aura:attribute name="pricebookSelected" type="boolean" default="false"/>    
+    <aura:attribute name="priBookTrue" type="boolean" default="false"/>
+    
+    <ltng:require styles="{!$Resource.actionwidth + '/actionwidth/actionwidth.css'}"/> 
+    <ltng:require styles="{!$Resource.actionwidth + '/actionwidth/css/all.css'}"/>
+    <ltng:require scripts="{!$Resource.actionwidth + '/actionwidth/jquery_3.2.1.min.js'}" afterScriptsLoaded="{!c.focusTOscan}"/>
+    <!--<ltng:require scripts="{!$Resource.jQueryUI + '/jQueryUI/jquery-ui.min.js'}" afterScriptsLoaded="{!c.jqueryUI}"/>-->
+    
+    <aura:attribute name="Spinner" type="boolean" default="false"/>
+    <aura:handler event="aura:waiting" action="{!c.showSpinner}"/>
+    <aura:handler event="aura:doneWaiting" action="{!c.hideSpinner}"/>
+    <aura:handler name="change" value="{!v.scanValue}" action="{!c.searchProBarcode}"/>
+    <aura:handler name="init" value="{!this}" action="{!c.initial1}"/>
+    
+    <!--=====================-->
+    <aura:attribute name="listOfOli" type="OpportunityLineItem[]"/>
+    <aura:attribute name="listforDel" type="String[]"/>
+    <aura:attribute name="addprodTab" type="boolean" default="false"/>
+    <aura:attribute name="manageProdTab" type="boolean" default="false"/>
+    <aura:attribute name="productTab" type="boolean" default="true"/>
+    <aura:attribute name="manageTab" type="boolean" default="false"/>
+    <!--=====================-->
+    
+    <aura:attribute name="DragIndex" type="String"/>
+    
+    <aura:if isTrue="{!v.Spinner}">
+        <lightning:spinner variant="brand" size="large" alternativeText="Please wait while loading..."/>        
+    </aura:if>    
+    <!--<div class="description forceMultiAddMultiEditHeader" data-aura-rendered-by="3431:0" data-aura-class="forceMultiAddMultiEditHeader">Price Book: {!v.pribook}</div>-->
+    <h6 class="card-title">
+        <ul class="slds-tabs--default__nav" role="tablist">
+            <li onclick="{!c.addProductsTab}" class="{!(v.productTab)?'slds-tabs--default__item slds-active':'slds-tabs--default__item'}" title="Add/Scan Products" role="presentation" style="padding-left:1px;font-size: .85rem;color: #03A9F4;margin-right: 10px;">
+                <a class="slds-tabs--default__link" href="javascript:void(0);" role="tab" tabindex="0" aria-selected="true" aria-controls="tab-default-1" id="tab-deafult-1__item" style="color: #03A9F4;text-decoration:none;">
+                    <i class="fas fa-barcode"></i>&nbsp;Select Products
+                </a>
+            </li>
+            <aura:if isTrue="{!not(v.pricebookSelected)}">
+            	<li onclick="{!c.manageProductsTab}" class="{!(v.manageTab)?'slds-tabs--default__item slds-active':'slds-tabs--default__item'}" title="Manage/Sort Products" role="presentation" style="font-size: .85rem;color: #03A9F4;">
+                    <a class="slds-tabs--default__link" href="javascript:void(0);" role="tab" tabindex="-1" aria-selected="false" aria-controls="tab-default-2" id="tab-default-2__item" style="color: #03A9F4;text-decoration:none;">
+                        <i class="fas fa-sort-amount-down-alt"></i>&nbsp;Manage/Sort Products
+                    </a>
+            	</li>
+            </aura:if>
+        </ul>
+    </h6>
+    
+    <aura:if isTrue ="{!v.addprodTab}">
+        <aura:if isTrue="{!v.pricebookSelected}">
+            <p>
+                Select a Price Book to associate with this opportunity. You can add products only from the Price Book you associate with this opportunity.
+                Changing the Price Book deletes all products from the opportunity.
+            </p><br/>
+            <div class="slds-col slds-size_1-of-1 slds-large-size_3-of-12 slds-p-right--small">   
+                <div class="slds-form-element">
+                    <label class="slds-form-element__label" for="pribook">Price Book</label>
+                    <div class="slds-form-element__control">
+                        <ui:inputSelect value="{!v.allpribook}" aura:id="allpricebook"/>
+                        <!--<lightning:select value="{!v.allpribook}">
+                            <aura:iteration items="{!v.optionsPB}" var="option">
+                                <option text="{!option.label}" value="{!option.value}"/>
+                            </aura:iteration>
+                        </lightning:select>-->
+                    </div>
+                </div>
+            </div>
+            <div class="slds-col slds-size_1-of-1 slds-large-size_2-of-12">
+                <div class="slds-form-element" style="margin-top:20px;">
+                    <lightning:button class="slds-button slds-button--brand" onclick="{!c.savePricebook}">Save</lightning:button>                     
+                </div>  
+            </div>    
+            
+            <aura:set attribute="else">   
+                <div class="slds-grid slds-wrap">
+                    <div style="display:none;" class="slds-col slds-size_1-of-1 slds-large-size_3-of-12 slds-p-right--small">   
+                        <div class="slds-form-element">
+                            <label class="slds-form-element__label" for="pribook">Price Book</label>
+                            <div class="slds-form-element__control">
+                                <ui:inputSelect value="{!v.pribook}" aura:id="price_book" disabled="true"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="slds-col slds-size_1-of-1 slds-large-size_3-of-12 slds-p-right--small">  
+                        <div class="slds-form-element">
+                            <label class="slds-form-element__label" for="name">Name</label>
+                            <div class="slds-form-element__control">
+                                <lightning:input value="{!v.name}" onchange="{!c.getProduct}"/>
+                            </div>
+                        </div> 
+                    </div>
+                    <div class="slds-col slds-size_1-of-1 slds-large-size_3-of-12 slds-p-right--small">  
+                        <div class="slds-form-element">
+                            <label class="slds-form-element__label" for="name">Product Code</label>
+                            <div class="slds-form-element__control">
+                                <lightning:input value="{!v.proCode}" onchange="{!c.getProduct}"/>
+                            </div>
+                        </div> 
+                    </div>
+                    <div class="slds-col slds-size_1-of-1 slds-large-size_3-of-12 slds-p-right--small">   
+                        <div class="slds-form-element">
+                            <label class="slds-form-element__label" for="prodFam">Family</label>
+                            <div class="slds-form-element__control">
+                                <ui:inputSelect value="{!v.prodFam}" change="{!c.getProduct}" aura:id="profamily_List"/>
+                            </div>
+                        </div>
+                    </div>        
+                    <div class="slds-col slds-size_1-of-1 slds-large-size_2-of-12">
+                        <div class="slds-form-element" style="margin-top:20px;">
+                            <lightning:button class="slds-button slds-button--brand" onclick="{!c.getProduct}">Find</lightning:button>                            
+                        </div>  
+                    </div>
+                </div>
+                <aura:if isTrue="{!v.listOfProduct.length > 0}">
+                    <div class="maindivinnermr" style="margin-top: 10px;width: 100%;height: 307px;overflow-x:hidden;overflow-y:auto;">
+                        <table class="slds-table slds-table--bordered slds-table--cell-buffer" style="position: relative;">
+                            <thead>
+                                <tr class="slds-text-title--caps">
+                                    <th class="maqsticky" style="padding-left:2px;">
+                                        
+                                    </th>
+                                    <th class="maqsticky" style="">
+                                        <span class="slds-truncate" title="Code">Code</span>      
+                                    </th>
+                                    <th class="maqsticky" style="">
+                                        <span class="slds-truncate" title="Product">Product</span>
+                                    </th>
+                                    <th class="maqsticky" style="">       
+                                        <span class="slds-truncate" title="Price">Price</span>
+                                    </th>
+                                    <th class="maqsticky" style="">
+                                        <div class="slds-truncate" title="Quantity">Quantity</div>
+                                    </th>
+                                    <th class="maqsticky" style="">
+                                        <div class="slds-truncate" title="Description">Product Description</div>
+                                    </th>
+                                </tr>                        
+                            </thead>
+                            <tbody>
+                                <aura:iteration items="{!v.listOfProduct}" var="pro" aura:id="singlepro" indexVar="count">
+                                    <tr>
+                                        <td scope="row" class="slds-text-align--right" style="padding:4px;padding-left:0px;">
+                                            <div class="slds-form-element">
+                                                <div class="slds-form-element__control">
+                                                    <label class="slds-checkbox">
+                                                        <ui:inputCheckbox text="{!pro.product.Product2.Id}" aura:id="boxPack" value="{!pro.checkSelected}" change="{!c.checkboxSelect}"/>
+                                                        <span class="slds-checkbox--faux"></span>
+                                                        <span class="slds-form-element__label text"></span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td align="center" style="padding:4px;">
+                                            <div class="slds-truncate" title="Code" style="">
+                                                <ui:outputText aura:id="code" value="{!pro.product.Product2.ProductCode}"/>
+                                            </div>
+                                        </td>
+                                        <td style="padding:4px;">
+                                            <div class="slds-truncate" title="Product" style="max-width: 160px;color:#0070d2;cursor:pointer;white-space: normal;"><!-- id="{!pro.product.Id}"-->
+                                                <ui:outputText value="{!pro.product.Product2.Name}" click="{!c.NavRecord}" title="{!pro.product.Product2Id}"/>
+                                            </div>                                        
+                                        </td>
+                                        <td style="padding:4px;">
+                                            <div class="slds-truncate" title="Price" style="width:120px;">
+                                                <ui:inputCurrency value="{!pro.product.UnitPrice}" required="true"/>
+                                            </div>
+                                        </td>
+                                        <td style="padding:4px;">
+                                            <div class="slds-truncate" title="Charge/Qty" style="width: 120px;"><!-- id="{!pro.product.Id}"-->
+                                                <ui:inputNumber value="{!pro.quantity}" required="true"/>
+                                            </div>
+                                        </td>
+                                        <td style="padding:4px;">
+                                            <div class="slds-truncate" title="Description"><!-- id="{!pro.product.Id}"-->
+                                                <ui:inputTextArea value="{!pro.product.Product2.Description}"/>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </aura:iteration>
+                            </tbody>
+                        </table>  
+                    </div>
+                </aura:if>
+                
+                <aura:if isTrue="{!v.isRecFetch}">
+                    <div class="docked-maq" style="position: fixed;right: 95px;bottom: 60px;">
+                        <aura:if isTrue="{!v.isProSel}">                        
+                            <lightning:button label="Save" class="slds-button slds-button--neutral" onclick="{!c.addProduct}"/>                                    
+                            <aura:set attribute="else">                                        
+                                <lightning:button label="Save" class="slds-button slds-button--neutral" disabled="true" />
+                            </aura:set>
+                        </aura:if>
+                    </div>
+                </aura:if> 
+                
+                <aura:if isTrue="{!v.isRecFetch}">
+                    <aura:if isTrue="{!v.listOfProduct.length == 0}">
+                        <br/><br/>
+                        <div>
+                            <ui:message severity="warning" closable="false">
+                                No Product Available
+                            </ui:message>
+                        </div>
+                    </aura:if>
+                </aura:if> 
+            </aura:set>
+        </aura:if>
+    </aura:if>
+    <aura:if isTrue="{!v.manageProdTab}"> 
+        <aura:if isTrue="{!v.listOfOli.length > 0}">
+            <div class="maindivinnermr" style="margin-top: 10px;width: 100%;height: 372px;overflow-x:hidden;overflow-y:auto;">
+                <table id="oliTable" class="slds-table slds-table--bordered slds-table--cell-buffer" style="position: relative;">
+                    <thead>
+                        <tr class="slds-text-title--caps">
+                            <th class="maqsticky" style="padding-left:2px;">
+                                <!--Give an image for move products (Like three parallel lines)-->
+                            </th>
+                            <th class="maqsticky" style="">
+                                <span class="slds-truncate" title="Products">Product</span>      
+                            </th>
+                            <th class="maqsticky" style="">
+                                <span class="slds-truncate" title="Price">Sales Price</span>
+                            </th>
+                            <th class="maqsticky" style="">       
+                                <span class="slds-truncate" title="Quantity">Quantity</span>
+                            </th>
+                            <th class="maqsticky" style="">
+                                <div class="slds-truncate" title="Description">Line Description</div>
+                            </th>
+                            <th class="maqsticky" style="">
+                            </th>
+                        </tr>                        
+                    </thead>
+                    <tbody>
+                        <aura:iteration items="{!v.listOfOli}" var="oliPro" aura:id="singlepro" indexVar="index">
+                          <tr id="{!index}" class="" draggable="true" ondragstart="{!c.handleDrag}" ondrop="{!c.handleDrop}" ondragover="{!c.allowDrop}" data-index="{!index}" style="cursor:pointer;">
+                                <td scope="row" class="slds-text-align--right" style="padding:4px;padding-left:0px;">
+                                    <!--Give an image here -->                                        
+                                </td>
+                                <td style="padding:4px;">
+                                    <div class="slds-truncate" title="Product" style="max-width: 160px;color:#0070d2;white-space: normal;">
+                                        <ui:outputText value="{!oliPro.Product2.Name}" click="{!c.NavRecord}" title="{!oliPro.Id}"/>
+                                    </div>                                        
+                                </td>
+                                <td style="padding:4px;">
+                                    <div class="slds-truncate" title="Price" style="width:120px;">
+                                        <ui:inputCurrency value="{!oliPro.UnitPrice}"/>
+                                    </div>
+                                </td>
+                                <td style="padding:4px;">
+                                    <div class="slds-truncate" title="Charge/Qty" style="width: 120px;">
+                                        <ui:inputNumber value="{!oliPro.Quantity}"/>
+                                    </div>
+                                </td>
+                                <td style="padding:4px;">
+                                    <div class="slds-truncate" title="Description">
+                                        <ui:inputTextArea value="{!oliPro.Description}"/>
+                                    </div>
+                                </td>
+                                <td style="padding:4px;">
+                                    <div class="slds-truncate" title="deleteIcon">
+                                        <button type="button" onclick="{!c.removeRow}" class="custombtnmr" value="{!oliPro.Id}" data-service="{!index}">
+                                        	<lightning:icon iconName="action:delete" alternativeText="Delete" class="slds-icon_small" />
+                                    	</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </aura:iteration>
+                    </tbody>
+                </table>  
+            </div>
+        </aura:if>
+        <aura:if isTrue="{!v.listOfOli.length == 0}">
+            <br/><br/>
+            <div>
+                <ui:message severity="warning" closable="false">
+                    No Product Available
+                </ui:message>
+            </div>
+        </aura:if>
+        <div class="docked-maq" style="position: fixed;right: 95px;bottom: 60px;">                                 
+                <lightning:button label="Save" class="slds-button slds-button--neutral" onclick="{!c.manageProduct}"/>                                    
+        </div>
+        
+    </aura:if>
+</aura:component>

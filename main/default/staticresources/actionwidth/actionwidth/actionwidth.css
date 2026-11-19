@@ -1,0 +1,12 @@
+.slds-modal__container {
+    margin: 0 auto;
+    width: 90% !important;
+    max-width: 81rem !important;
+    min-width: 30rem !important;
+}
+/*.slds-text-heading--medium  {
+    display:none !important;
+}
+.slds-modal__header {
+	height:50px;
+}*/

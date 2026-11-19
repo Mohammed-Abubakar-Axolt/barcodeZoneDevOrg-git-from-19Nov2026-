@@ -1,0 +1,5 @@
+<apex:page standardController="Contact" sidebar="false" showHeader="false" renderAs="pdf">  
+    <apex:outputPanel style="display:{!if(Contact.PDF_417_Attachment_ID__c != null, '', 'none')}">
+        <apex:image url="/servlet/servlet.FileDownload?file={!Contact.PDF_417_Attachment_ID__c}" />
+    </apex:outputPanel>                            
+</apex:page>

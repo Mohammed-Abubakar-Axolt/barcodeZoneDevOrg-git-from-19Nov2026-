@@ -1,0 +1,3 @@
+<apex:page >
+ <c:ACBarcodeZone BrcdType="{!'code128'}" value="{!'8288292929292929'}" BrcdHeight="20" barswidth="5"/>
+</apex:page>

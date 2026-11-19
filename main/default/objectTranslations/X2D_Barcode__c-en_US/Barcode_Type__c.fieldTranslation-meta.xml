@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label><!-- Barcode Type --></label>
+    <name>Barcode_Type__c</name>
+    <picklistValues>
+        <masterLabel>pdf417</masterLabel>
+        <translation><!-- pdf417 --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>qrcode</masterLabel>
+        <translation><!-- qrcode --></translation>
+    </picklistValues>
+</CustomFieldTranslation>

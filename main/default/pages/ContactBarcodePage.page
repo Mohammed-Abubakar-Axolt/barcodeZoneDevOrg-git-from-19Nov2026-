@@ -1,0 +1,10 @@
+<apex:page standardController="Contact" cache="false" sidebar="false" id="BrcdPage" >     
+    <apex:outputPanel style="display:{!if(Contact.PDF_417_Attachment_ID__c!= null, 'none', '')}">
+        <c:AC2DBarcodeZone BrcdType="pdf417" Value="{!Contact.LastName}" Brcd-sObjectParentId="{!Contact.Id}" 
+                      Brcd-sObjectParentName="Contact" Brcd-sObjectlookupName="BarcodeZone__Contact__c" >
+        </c:AC2DBarcodeZone>
+    </apex:outputPanel>       
+    <apex:outputPanel id="idImage" style="display:{!if(Contact.PDF_417_Attachment_ID__c!= null, '', 'none')}">  
+        <img id="ik" /><!--<script>showPDFImage();</script> -->
+    </apex:outputPanel>                                    
+</apex:page>

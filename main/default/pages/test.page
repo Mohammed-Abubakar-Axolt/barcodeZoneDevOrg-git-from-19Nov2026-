@@ -1,0 +1,45 @@
+<apex:page showHeader="false">
+<div id="externalbox" style="width:5in">
+<div id="inputdata"><div style="text-align:center;width: 198px;">
+            <div style="border-left:0.02in solid black;height:1in;display:inline-block;"></div><div style="border-left:0.06in solid black;height:1in;display:inline-block;"></div><div style="border-left:0.02in solid black;height:1in;display:inline-block;"></div><div style="border-left:0.02in solid white;height:1in;display:inline-block;"></div><div style="border-left:0.06in solid white;height:1in;display:inline-block;"></div><div style="border-left:0.02in solid white;height:1in;display:inline-block;"></div><div style="border-left:0.06in solid white;height:1in;display:inline-block;"></div><div style="border-left:0.02in solid white;height:1in;display:inline-block;"></div><div style="border-left:0.02in solid black;height:1in;display:inline-block;"></div><div style="border-left:0.02in solid white;height:1in;display:inline-block;"></div><div style="border-left:0.02in solid black;height:1in;display:inline-block;"></div><div style="border-left:0.02in solid white;height:1in;display:inline-block;"></div><div style="border-left:0.02in solid black;height:1in;display:inline-block;"></div><div style="border-left:0.06in solid black;height:1in;display:inline-block;"></div><div style="border-left:0.06in solid white;height:1in;display:inline-block;"></div><div style="border-left:0.02in solid white;height:1in;display:inline-block;"></div><div style="border-left:0.06in solid white;height:1in;display:inline-block;"></div><div style="border-left:0.02in solid white;height:1in;display:inline-block;"></div><div style="border-left:0.02in solid black;height:1in;display:inline-block;"></div><div style="border-left:0.02in solid white;height:1in;display:inline-block;"></div><div style="border-left:0.02in solid black;height:1in;display:inline-block;"></div><div style="border-left:0.06in solid black;height:1in;display:inline-block;"></div><div style="border-left:0.02in solid black;height:1in;display:inline-block;"></div><div style="border-left:0.02in solid white;height:1in;display:inline-block;"></div><div style="border-left:0.06in solid white;height:1in;display:inline-block;"></div><div style="border-left:0.02in solid white;height:1in;display:inline-block;"></div><div style="border-left:0.06in solid white;height:1in;display:inline-block;"></div><div style="border-left:0.02in solid white;height:1in;display:inline-block;"></div><div style="border-left:0.02in solid black;height:1in;display:inline-block;"></div>
+</div>
+</div>
+</div>
+
+
+<table cellpadding="0" cellspacing="0" style="margin-left:auto;margin-right:auto;height:40px">
+    <tbody>
+        <tr style="height:40px; width:115px;">
+            <td style="width:2px; background-color:black"></td>
+            <td style="width:4px; background-color:white"></td>
+            <td style="width:2px; background-color:black"></td>
+            <td style="width:2px; background-color:white"></td>
+            <td style="width:4px; background-color:black"></td>
+            <td style="width:2px; background-color:white"></td>
+            <td style="width:4px; background-color:black"></td>
+            <td style="width:2px; background-color:white"></td>
+            <td style="width:2px; background-color:black"></td>
+            <td style="width:2px; background-color:white"></td>
+            <td style="width:2px; background-color:black"></td>
+            <td style="width:2px; background-color:white"></td>
+            <td style="width:2px; background-color:black"></td>
+            <td style="width:4px; background-color:white"></td>
+            <td style="width:4px; background-color:black"></td>
+            <td style="width:2px; background-color:white"></td>
+            <td style="width:4px; background-color:black"></td>
+            <td style="width:2px; background-color:white"></td>
+            <td style="width:2px; background-color:black"></td>
+            <td style="width:2px; background-color:white"></td>
+            <td style="width:2px; background-color:black"></td>
+            <td style="width:4px; background-color:white"></td>
+            <td style="width:2px; background-color:black"></td>
+            <td style="width:2px; background-color:white"></td>
+            <td style="width:4px; background-color:black"></td>
+            <td style="width:2px; background-color:white"></td>
+            <td style="width:4px; background-color:black"></td>
+            <td style="width:2px; background-color:white"></td>
+            <td style="width:2px; background-color:black"></td>
+        </tr>
+    </tbody>
+</table>
+</apex:page>

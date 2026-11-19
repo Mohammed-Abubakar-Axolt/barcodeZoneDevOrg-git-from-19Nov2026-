@@ -1,0 +1,8 @@
+<apex:page standardController="Product2" sidebar="false" showHeader="false"> 
+    <apex:outputPanel >
+        <apex:include pageName="communitySetup"/> 
+        <c:AC2DBarcodeZone BrcdType="{!Product2.Family}" Value="{!Product2.ProductCode}"
+        Brcd-sObjectParentId="{!Product2.Id}" Brcd-sObjectParentName="Product2" Brcd-sObjectlookupName="Product__c"> 
+        </c:AC2DBarcodeZone>
+    </apex:outputPanel> 
+</apex:page>

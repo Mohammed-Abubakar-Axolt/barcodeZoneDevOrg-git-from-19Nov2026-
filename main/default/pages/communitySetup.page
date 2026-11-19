@@ -1,0 +1,7 @@
+<apex:page >
+ <apex:includeScript value="{!$Resource.sfdcmainjs}"/>
+ <script>
+    window.sfdcPage = new ApexDetailPage();
+    UserContext.initialize({"siteUrlPrefix": "{!$Site.Prefix}"});
+</script>
+</apex:page>

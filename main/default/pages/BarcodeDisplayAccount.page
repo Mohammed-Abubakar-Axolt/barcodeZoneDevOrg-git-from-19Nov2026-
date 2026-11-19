@@ -1,0 +1,43 @@
+<apex:page standardController="Account" sidebar="false" showHeader="false">
+    <apex:includeLightning />
+
+    
+    <script>
+    
+        var barvalue = '{!JSENCODE($currentPage.Parameters.Code)}';
+        var barType = '{!JSENCODE($currentPage.Parameters.Type)}';
+        
+        
+        if(barvalue == undefined || barvalue == '' || barvalue == null) barvalue = "{!JSENCODE(Account.BarcodeZone__Code__c)}";
+        if(barType == undefined || barType == '' || barType == null) barType = "{!JSENCODE(Account.BarcodeZone__Barcode_Type__c)}";
+        
+        if(barType == "code128" || barType == "code39" || barType == "ean8" || barType == "ean13"){
+            
+            !$Lightning.use("BarcodeZone:ACBarcodeZoneLightningApp", function() {
+            console.log('after app upload');
+            !$Lightning.createComponent(
+                "BarcodeZone:ACBarcodeZoneLightning",
+                {Value: barvalue, BrcdType: barType},
+                "Con",
+                function(cmp) {
+                    console.log("Component created!");
+                });
+            });
+        }
+        else if(barType == "qrcode" || barType == "pdf417"){
+            
+            !$Lightning.use("BarcodeZone:AC2DBarcodeZoneLightningApp", function() {
+            console.log('after app upload');
+            !$Lightning.createComponent(
+                "BarcodeZone:AC2DBarcodeZoneLightning",
+                {Value: barvalue, BrcdType: barType},
+                "Con",
+                function(cmp) {
+                    console.log("Component created!");
+                });
+            });
+        }
+        
+    </script>
+    <div id="Con"></div>
+</apex:page>

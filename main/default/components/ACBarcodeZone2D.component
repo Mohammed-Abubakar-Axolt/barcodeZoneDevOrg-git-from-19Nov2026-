@@ -1,0 +1,436 @@
+<apex:component controller="BarcodeController" access="global" >
+    <apex:attribute name="Value" description="Barcode value" type="String"  required="required" assignTo="{!Brcd}" access="global" />
+    <apex:attribute name="BrcdType" description="Barcode Type" type="String" required="required" assignTo="{!BarcdType}" access="global" />
+    <apex:attribute name="BrcdCorrection" description="QR Correction Level" type="String" required="false" assignTo="{!correctionLevel}" access="global" ></apex:attribute>    
+    <apex:attribute name="BrcdHeight" description="height" type="String" required="false" assignTo="{!Height}" access="global" ></apex:attribute>
+    <apex:attribute name="BrcdWidth" description="width" type="String" required="false" assignTo="{!Width}" access="global" ></apex:attribute>    
+    <apex:attribute name="Brcd-Id" description="Barcode ID" type="String" required="required" assignTo="{!BrcdId}" access="global" />         
+    <apex:attribute name="Brcd-sObjectParentId" description="sObject" type="String" required="false" assignTo="{!SObjectParentId}" access="global" ></apex:attribute>
+    <apex:attribute name="Brcd-BarcodeAPIName" description="sObject" type="String" required="false" assignTo="{!BarcodeAPIName }" access="global" ></apex:attribute>
+
+
+    <apex:dynamicComponent componentValue="{!JQueryMin}"></apex:dynamicComponent> 
+    <apex:dynamicComponent componentValue="{!DataMatrixScript}"></apex:dynamicComponent>
+
+    <apex:dynamicComponent componentValue="{!QRJScript}"></apex:dynamicComponent>
+    <apex:dynamicComponent componentValue="{!JQRScript}"></apex:dynamicComponent>
+    
+    <apex:dynamicComponent componentValue="{!PDF417Min}"></apex:dynamicComponent>
+        
+    <apex:stylesheet value="{!QRCSS}"></apex:stylesheet>
+        
+    <script src="/soap/ajax/63.0/connection.js" type="text/javascript"></script>
+    
+    <script> 
+      window.oncontextmenu = function() {return false;}
+      sforce.connection.sessionId = "{!$Api.Session_Id}"; 
+     </script>
+     
+     <script type="text/javascript">
+            
+         var barcodezone = {
+            base: {
+                initPots: function(){ 
+                        return {
+                            PARENTID: "{!JSENCODE(SObjectParentId)}",
+                            PARENT: "{!JSENCODE(SObjectParentName)}",
+                            LOOKUP: "{!JSENCODE(SObjectlookupName)}",
+                            LOGGEDUSER: sforce.connection.getUserInfo().userId
+                        };
+                        
+                 },
+                 initObject: function(){
+                     return{
+                            ATTACH: 1007,
+                            DOCUMENT: 1008,
+                            MISC: 1000
+                      };
+                 }
+            },
+            generator: {
+                pdf417:function(textEntered, barcodeH, barcodeW){
+
+                    var pI  = barcodezone.base.initPots().PARENTID;
+                    var oP = barcodezone.base.initPots().PARENT;
+                    var oLU  = barcodezone.base.initPots().LOOKUP;
+
+                            
+                },
+                qrCode: function(textEntered, barcodeH, barcodeW){
+                            
+                    var pI  = barcodezone.base.initPots().PARENTID;
+                    var oP = barcodezone.base.initPots().PARENT;
+                    var oLU  = barcodezone.base.initPots().LOOKUP;
+                        
+                            
+                },
+                datamatrix: function(textEntered, barcodeH, barcodeW){
+
+                    var pI  = barcodezone.base.initPots().PARENTID;
+                    var oP = barcodezone.base.initPots().PARENT;
+                    var oLU  = barcodezone.base.initPots().LOOKUP;
+
+                }
+            },
+            processor: {
+                    pdfProcessor: {
+                        initPDF417: function(textEntered){
+                            PDF417.init(textEntered);
+                        },
+                         generatePDF417: function(barcodeH,barcodeW,parentId){
+                             var barcode=PDF417.getBarcodeArray(),bw=2,bh=2,e="",canvas=document.createElement("canvas");
+                                canvas.width=bw*barcode.num_cols;canvas.height=bh*barcode.num_rows;
+                                var height= barcodeH+'px';var width= barcodeW+'px';
+
+                                if(height!=''){canvas.style.height = '150px';}if(width!=''){canvas.style.width = '150px';}
+
+                                canvas.setAttribute("id", "canvasId"+parentId);
+                                jQuery("#"+parentId).append(canvas);
+
+                                for(var ctx=canvas.getContext("2d"),y=0,r=0;r<barcode.num_rows;++r){
+                                    for(var x=0,c=0;c<barcode.num_cols;++c)
+                                        1==barcode.bcode[r][c]&&ctx.fillRect(x,y,bw,bh),x+=bw;y+=bh; 
+                                }
+                        }    
+                    },
+                    qrProcessor: {
+                        initQR: function(){
+                            
+                        },
+                        generateQR: function(height,width,correctLevel, parentId, textEntered){
+                            if(height==''){height=150;}if(width==''){width=150;}
+                            jQuery('#'+parentId).qrcode({
+                                render: "canvas",
+                                border: 20,
+                                text: textEntered,
+                                height: height,                                
+                                width: width,
+                                qrId: "BRCD"+parentId, 
+                                correctLevel: correctLevel
+                            });
+                        }
+                    },
+                    datamatrixProcessor: {
+                        initDataMatrix: function(barcodeH,barcodeW,correctLevel, textEntered){
+                            var moduleSize = Math.round(((parseFloat(barcodeW) + parseFloat(barcodeH)*2)/100));
+                                
+                            var settings = {
+                                  output:'canvas',
+                                  moduleSize: moduleSize
+                            };  
+                            return settings;
+                        },
+                        generateDataMatrix: function(qrId,textEntered,settings){
+                            jQuery("#"+qrId).barcode(textEntered, 'datamatrix', settings);
+                        }    
+                    }
+                },
+                detectionor:{ 
+
+                    conditionalCheck: function(oI,oLU,oP){
+                        
+                        if((oI != null && oI != '') && oI != 'Document'){
+                                return barcodezone.base.initObject().ATTACH;
+                                
+                            }else if((oI != null && oI != '') && oI == 'Document'){
+                                return barcodezone.base.initObject().DOCUMENT;
+                                
+                            }else if(oI == ''){
+                                return barcodezone.base.initObject().MISC;
+                            }       
+                    }
+            },
+            executor:{ 
+                    sfdc:{
+                        init: function(){
+                            
+                        },
+                        manipulator:{    
+
+                            fieldSet: function(objectName){
+                                var described = sforce.connection.describeSObject(objectName);
+                                var allFields = '';
+                                    //console.log('described Label : '+described.label+' described.Name : '+described.name);
+                                    for(fi in described.fields){
+                                       if(allFields == null || allFields == ''){
+                                            allFields = fi.name;
+                                        }else{
+                                            allFields = allFields + ', ' + fi.name;
+                                        } 
+                                    }
+                                    return allFields;
+                                }
+                        },
+                        creational:{
+                            createDocument:function(objParent,image){
+                                var doc = new sforce.SObject("Document");    
+                                    doc.FolderId = "";
+                                    doc.ContentType = "image/png";
+                                    doc.Body = image;
+                                    doc.Name = "PDF-"+objParent+".png";
+                                    sforce.connection.create([doc],{onSuccess:barcodezone.success, onFailure:barcodezone.failure});
+                            },
+                            createBarcode:function(objId, lU, type){
+                                    var x2DBarcode = new sforce.SObject("BarcodeZone__X2D_Barcode__c");
+                                    x2DBarcode.BarcodeZone__Barcode_Type__c = type;
+                                    x2DBarcode.lU = objId;
+                                    var result = sforce.connection.create([x2DBarcode]);
+
+                                      if (result[0].getBoolean("success")) {
+                                            console.log("new x2DBarcode created with id " + result[0].id);
+                                            return result[0].Id;
+                                      }else{
+                                            console.log("failed to create x2DBarcode " + result[0]);
+                                            return null;
+                                      }
+                            },
+                            createAttachment:function(parentId,body,barcodeId,name){
+                                var x2DBCAttachment = new sforce.SObject("Attachment");
+                                    x2DBCAttachment.ParentId = parentId;
+                                    x2DBCAttachment.ContentType = "image/png";
+                                    //newAttachment.Body = document.getElementById("canvasId{!JSENCODE(SObjectParentId)}").toDataURL().split(',')[1];
+                                    x2DBCAttachment.Body = body;
+                                    x2DBCAttachment.Name = name;
+                                    
+                                var newAttachments = sforce.connection.create([x2DBCAttachment]);
+                                    if (newAttachments[0].getBoolean("success"))
+                                        return newAttachments[0].id;
+                            }
+                        },
+                        updational:{
+                            updateBarcode:function(recordId, url){
+
+                                sforce.connection.update([attachments[0]],{onSuccess:barcodezone.success, onFailure:barcodezone.failure});
+                                
+
+                                var updateBarcode = new sforce.SObject("BarcodeZone__X2D_Barcode__c");
+                                    updateBarcode.id = recordId;
+                                    updateBarcode.BarcodeZone__PDF417_URL__c = url;
+                                
+                                sforce.connection.update([updateBarcode],{onSuccess:barcodezone.success, onFailure:barcodezone.failure});
+                               
+                            },
+                            updateProduct:function(parentName, recordId, attachmentId){
+                                
+                                var updateProduct = new sforce.SObject(parentName);
+                                if(updateProduct.id == null || updateProduct.id == '')  
+                                    updateProduct.id = recordId;
+                                updateProduct.PDF_417_Attachment_ID__c = attachmentId;                        
+                            
+                                sforce.connection.update([updateProduct],{onSuccess:barcodezone.success, onFailure:barcodezone.failure});
+
+                            } 
+                        },
+                        retrievor:{ 
+                            retrieveGeneric: function(objectName){
+                                
+                                var genericQuery = sforce.connection.query("SELECT "+ barcodezone.executor.sfdc.manipulator.fieldSet(objectName) +" FROM "+SObjectParentName+" where Id='"+ sObjcParentId +"' Limit 1");
+                                
+                                return genericQuery.getArray('records');
+                            },
+                            retrieveSpecific: function(lu, objId, type){
+
+                                var specificQuery = sforce.connection.query("select Id, Name, "+lu+", BarcodeZone__Barcode_Type__c, BarcodeZone__PDF417_URL__c "+
+                                                                            "from BarcodeZone__X2D_Barcode__c "+
+                                                                            "where "+lu+" = '"+objId+"' "+
+                                                                            "and BarcodeZone__Barcode_Type__c = '"+type+"' "+" Limit 1");//and 
+
+                                return specificQuery.getArray('records');
+                            },
+                            retrieveAttach: function(objectName, parentId){
+                                
+                                var specificAttach = sforce.connection.query("SELECT "+ barcodezone.executor.sfdc.manipulator.fieldSet(objectName) +" FROM "+objectName+" where ParentId='"+parentId+"' "+
+                                                                                            "and OwnerId='"+ barcodezone.base.init.potentials.LOGGEDUSER +"' Limit 1");
+                                return specificAttach.getArray('records');
+
+                          }
+                     }  
+                }
+            }, 
+            failure: function(){
+
+            },
+            success: function(){
+
+            }
+        }
+
+        </script>
+     
+     
+     <!-- PDF417 Barcode starts -->
+    
+
+    <apex:outputPanel rendered="{!IF(BarcdType == 'pdf417', true, false )}">
+           
+           <div id="pdfBarcode{!HTMLENCODE(SObjectParentId)}"></div> 
+        
+        <script type="text/javascript">
+        
+            jQuery(function() {
+                     var _pdf = barcodezone.processor.pdfProcessor;
+                         _pdf.initPDF417("{!JSENCODE(Brcd)}");
+                         _pdf.generatePDF417("{!JSENCODE(Height)}","{!JSENCODE(Width)}","pdfBarcode{!HTMLENCODE(SObjectParentId)}");
+                         
+                     var imageData = document.getElementById("canvasIdpdfBarcode{!HTMLENCODE(SObjectParentId)}").toDataURL().split(',')[1];
+                     //alert(imageData);  
+                     //Create attachment
+                     //alert('Before doCreateSObjectAttachment pdf417');
+                     doCreateSObjectAttachmentPDF417("{!JSENCODE(SObjectParentId)}",imageData);
+                     console.log('PDF417 Processor');
+                  });
+                function doCreateSObjectAttachmentPDF417(sObjcParentId, image){
+                        console.log('Inside doCreateSObjectAttachment PDF417 : '+sObjcParentId);
+
+                        var _attachment = new sforce.SObject("Attachment");    
+                            _attachment.ParentId = sObjcParentId;
+                            _attachment.ContentType = "image/png";
+                            _attachment.Body = image;
+                            _attachment.Name = "PDF-"+sObjcParentId+".png";
+                        
+                        var result = sforce.connection.create([_attachment]);
+ 
+                          if (result[0].getBoolean("success")) {
+                            console.log("Attachment id " + result[0].id);
+                          } else {
+                            console.log("failed to create attachment " + result[0]);
+                          }
+                    }
+            
+        </script>     
+    </apex:outputPanel>
+
+    <!-- PDF417 Barcode Ends --> 
+     
+     
+     
+    <!-- DataMatrix starts -->
+        <apex:outputPanel rendered="{!IF(BarcdType == 'datamatrix', true, false )}">
+        <canvas id="dmBarcode{!HTMLENCODE(SObjectParentId)}" width="150" height="150"></canvas>
+
+             <script type="text/javascript">
+            
+               jQuery(function() {
+                     var datamatrix = barcodezone.processor.datamatrixProcessor;
+                     //var options = datamatrix.initDataMatrix("{!JSENCODE(Height)}","{!JSENCODE(Width)}",2,"{!JSENCODE(Brcd)}");
+                     var options = datamatrix.initDataMatrix("150","150",2);
+                     var imageData = datamatrix.generateDataMatrix("dmBarcode{!HTMLENCODE(SObjectParentId)}","Nisar",options);
+                     //alert(imageData);         
+                     //Create attachment
+                     //alert('Before doCreateSObjectAttachment DataMatrix');
+                     //doCreateSObjectAttachmentDMAT("{!JSENCODE(SObjectParentId)}",imageData);
+                     console.log('DMAT Processor');                          
+                             
+              });
+               
+                //$( "#pdfBRCD{!HTMLENCODE(SObjectParentId)}" ).show(); 
+                function doCreateSObjectAttachmentDMAT(sObjcParentId, image){
+                        console.log('Inside doCreateSObjectAttachment DMAT : '+sObjcParentId);
+
+                        var _attachment = new sforce.SObject("Attachment");    
+                            _attachment.ParentId = sObjcParentId;
+                            _attachment.ContentType = "image/png";
+                            _attachment.Body = image;
+                            _attachment.Name = "DMAT-"+sObjcParentId+".png";
+                        
+                        var result = sforce.connection.create([_attachment]);
+ 
+                          if (result[0].getBoolean("success")) {
+                            console.log("Attachment id " + result[0].id);
+                          } else {
+                            console.log("failed to create attachment " + result[0]);
+                          }
+                    }               
+                          
+            </script>
+        
+        </apex:outputPanel>
+     <!-- DataMatrix Ends --> 
+     
+       <!-- QRCode starts -->
+        <apex:outputPanel rendered="{!IF(BarcdType == 'qrcode', true, false )}">
+        <div id="barcode{!HTMLENCODE(SObjectParentId)}" style="display:none"></div> 
+                    
+               <script type="text/javascript">
+               
+               jQuery(function() {
+                     var qr = barcodezone.processor.qrProcessor;
+                         qr.generateQR("{!JSENCODE(Height)}","{!JSENCODE(Width)}",2, "barcode{!HTMLENCODE(SObjectParentId)}", "{!JSENCODE(Brcd)}");
+
+                       var imageData = document.getElementById("BRCDbarcode{!HTMLENCODE(SObjectParentId)}").toDataURL().split(',')[1];
+                       
+                         //Create attachment
+                         $( "#barcode{!HTMLENCODE(SObjectParentId)}" ).show();
+                         doCreateSObjectAttachmentQRCODE("{!JSENCODE(SObjectParentId)}",imageData);
+                          
+
+                          console.log('QR Processor');   
+                      
+                  });
+                  
+                 
+                    function doCreateSObjectAttachmentQRCODE(sObjcParentId, image){
+                        console.log('Inside doCreateSObjectAttachment QRCODE : '+sObjcParentId);
+
+                        var _attachment = new sforce.SObject("Attachment");    
+                            _attachment.ParentId = sObjcParentId;
+                            _attachment.ContentType = "image/png";
+                            _attachment.Body = image;
+                            //_attachment.Name = "QR-{!JSENCODE(BrcdId)}.png";
+                            _attachment.Name = "QR-"+sObjcParentId+".png";
+                        
+                        var result = sforce.connection.create([_attachment]);
+ 
+                          if (result[0].getBoolean("success")) {
+                            console.log("Attachment id " + result[0].id);
+                              
+                                                       /* var img = $('<img>').attr('src', imageData);
+                               img.appendTo('#'+'brcd{!HTMLENCODE(SObjectParentId)}'); 
+                           */                      
+                              
+                             /* var img = $('<img>').attr('src', '/servlet/servlet.FileDownload?file='+result[0].id);
+                               img.appendTo('#'+'brcd{!HTMLENCODE(SObjectParentId)}');
+                             */
+                            /*var img = new Image();
+                                img.onload = function(){
+                                 document.getElementById("BRCDbarcode{!HTMLENCODE(SObjectParentId)}").getContext("2d").drawImage(this,0,0);
+                             };
+                             
+                             img.src='/servlet/servlet.FileDownload?file='+result[0].id;
+                             */
+                            
+                          } else {
+                            console.log("failed to create attachment " + result[0]);
+                          }
+                    }
+
+                    function doCreateDocument(){    
+                    var doc = new sforce.SObject("Document");    
+                        doc.FolderId = "{!$User.Id}";
+                        doc.ContentType = "image/png";
+                        doc.Body = image;
+                        doc.Name = "QR-{!JSENCODE(BrcdId)}.png";
+
+                        //sforce.connection.create([doc],{onSuccess:result, onFailure:result});
+
+                    }                  
+                    function result(value) {
+                        if(value[0].success==="true") {
+                         console.log('Attachment created :'+value[0].Id);   
+                            //alert("Successfully saved drawing to My Documents");
+                           var img = $('<img>');
+                               img.attr('src', '/servlet/servlet.FileDownload?file='+value[0].Id);
+                               img.appendTo('#'+'brcd{!HTMLENCODE(SObjectParentId)}');
+                         
+
+                        } else {
+                            alert("Error saving barcode: "+value[0].errors.message);
+                        }   
+                    }
+
+             </script>
+              
+        </apex:outputPanel>
+     <!-- QRCode Ends -->        
+                    
+</apex:component>

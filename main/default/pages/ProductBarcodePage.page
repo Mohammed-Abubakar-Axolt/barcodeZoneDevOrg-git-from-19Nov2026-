@@ -1,0 +1,10 @@
+<apex:page standardController="Product2" sidebar="false" >     
+    <apex:outputPanel ><!-- style="display:{!if(Product2.PDF_417_Attachment_ID__c!= null, 'none', '')}" -->
+        <c:AC2DBarcodeZone BrcdType="pdf417" Value="{!Product2.ProductCode}" Brcd-sObjectParentId="{!Product2.Id}" 
+                      Brcd-sObjectParentName="Product2" Brcd-sObjectlookupName="BarcodeZone__Product__c" >
+        </c:AC2DBarcodeZone>
+    </apex:outputPanel>       
+    <apex:outputPanel id="idImage" ><!-- style="display:{!if(Product2.PDF_417_Attachment_ID__c!= null, '', 'none')}" -->  
+        <img id="ik" /><script>showPDFImage();</script>  
+    </apex:outputPanel>                                    
+</apex:page>

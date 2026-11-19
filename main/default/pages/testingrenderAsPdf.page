@@ -1,0 +1,20 @@
+<apex:page renderAs="pdf" controller="testingrenderAsPdfController">
+    <head>
+        <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.3/dist/jsbarcode.min.js"></script>
+    </head>
+    <body>
+        <div id="barcode"></div>
+        <script>
+            // Generate the barcode using JsBarcode library
+            JsBarcode("#barcode", "{!barcodeValue}", {
+                format: "CODE128",
+                lineColor: "#000000",
+                width: 2,
+                height: 50,
+                displayValue: true,
+                fontSize: 14,
+                textMargin: 5
+            });
+        </script>
+    </body>
+</apex:page>

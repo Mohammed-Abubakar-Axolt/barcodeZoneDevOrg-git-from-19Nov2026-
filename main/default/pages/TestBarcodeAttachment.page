@@ -1,0 +1,5 @@
+<apex:page standardController="Contact"><!--standardController="Account"-->
+<!--    <c:ACBarcodeZone2D Brcd-Id="Qr-Id" Brcd-sObjectParentId="Document" Brcd-Type="pdf417" Value="Syed Zubair"></c:ACBarcodeZone2D> -->
+<!--<c:ACBarcodeZone2D Brcd-Id="Qr-Id" Brcd-sObjectParentId="{!Account.Id}" BrcdType="qrcode" Value="Akhtar"></c:ACBarcodeZone2D>-->
+<c:ACBarcodeZone2D Brcd-Id="Qr-Id" Brcd-sObjectParentId="00390000004knXzAAI" BrcdType="qrcode" Value="Mr. Sean Forbes"></c:ACBarcodeZone2D>
+</apex:page>

@@ -1,0 +1,5 @@
+<apex:page standardController="Product2" sidebar="false" showHeader="false" renderAs="pdf">
+ <apex:outputPanel style="display:{!if(Product2.PDF_417_Attachment_ID__c != null, '', 'none')}">
+ <apex:image url="/servlet/servlet.FileDownload?file={!Product2.PDF_417_Attachment_ID__c}" />
+ </apex:outputPanel>
+</apex:page>

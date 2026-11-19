@@ -1,0 +1,83 @@
+<apex:page sidebar="false" showHeader="false">
+
+CODE 39 :
+    <c:ACBarcodeZone Value="5152690163 605-224-6111 SSCI 12/2099" BrcdType="{!'code39'}" BrcdHeight="40" />
+
+CODE 39 : Width 2
+    <c:ACBarcodeZone Value="5152690163 605-224-6111 SSCI 12/2099" BrcdType="{!'code39'}" BrcdHeight="30" BarsWidth="2"/>
+
+CODE 39 : Width 3
+    <c:ACBarcodeZone Value="5152690163 605-224-6111 SSCI 12/2099" BrcdType="{!'code39'}" BrcdHeight="30" BarsWidth="3"/>
+
+CODE 39 : Width 4
+    <c:ACBarcodeZone Value="5152690163 605-224-6111 SSCI 12/2099" BrcdType="{!'code39'}" BrcdHeight="30" BarsWidth="4"/>
+
+CODE 39 : Width 5
+    <c:ACBarcodeZone Value="5152690163 605-224-6111 SSCI 12/2099" BrcdType="{!'code39'}" BrcdHeight="40" BarsWidth="5"/>    
+    
+CODE 39 : Width 6
+    <c:ACBarcodeZone Value="5152690163 605-224-6111 SSCI 12/2099" BrcdType="{!'code39'}" BrcdHeight="40" BarsWidth="6"/>    
+
+CODE 128: Width
+     <c:ACBarcodeZone Value="{!'\\\\N\\A\\Nisar12227$%^&*(\\'}" BrcdType="{!'code128'}" BrcdHeight="40" id="TestId00" rendered="true" />
+
+CODE 128: Width 1
+     <c:ACBarcodeZone Value="{!'\\\\N\\A\\Nisar12227$%^&*(\\'}" BrcdType="{!'code128'}" BrcdHeight="40" BarsWidth="1" id="TestId0" rendered="true" />
+
+CODE 128: Width 2
+     <c:ACBarcodeZone Value="{!'\\\\N\\A\\Nisar12227$%^&*(\\'}" BrcdType="{!'code128'}" BrcdHeight="40" BarsWidth="2" id="TestId1" rendered="true" />
+
+CODE 128: Width 3
+     <c:ACBarcodeZone Value="{!'\\\\N\\A\\Nisar12227$%^&*(\\'}" BrcdType="{!'code128'}" BrcdHeight="40" BarsWidth="3" id="TestId2" rendered="true" />
+
+CODE 128: Width 4
+     <c:ACBarcodeZone Value="{!'\\\\N\\A\\Nisar12227$%^&*(\\'}" BrcdType="{!'code128'}" BrcdHeight="40" BarsWidth="4" id="TestId3" rendered="true" />
+
+CODE 128: Width 5
+     <c:ACBarcodeZone Value="{!'\\\\N\\A\\Nisar12227$%^&*(\\'}" BrcdType="{!'code128'}" BrcdHeight="40" BarsWidth="5" id="TestId4" rendered="true" />
+
+CODE 128: Width 6
+     <c:ACBarcodeZone Value="{!'\\\\N\\A\\Nisar12227$%^&*(\\'}" BrcdType="{!'code128'}" BrcdHeight="40" BarsWidth="6" id="TestId5" rendered="true" />
+
+CODE 128:
+     <c:ACBarcodeZone Value="{!'\\/ !#$%&()*+,-./[]{}`0:;<=>?@A^_'}" BrcdType="{!'code128'}" id="TestId6" rendered="true">
+     </c:ACBarcodeZone><br/>
+     
+<br/>
+EAN 13:
+    <c:ACBarcodeZone Value="{!'9780201734843'}" BrcdType="{!'ean13'}" BrcdHeight="40" />
+
+EAN 13: Width 2
+    <c:ACBarcodeZone Value="{!'9780201734843'}" BrcdType="{!'ean13'}" BrcdHeight="30" BarsWidth="2"/>
+
+EAN 13: Width 3
+    <c:ACBarcodeZone Value="{!'9780201734843'}" BrcdType="{!'ean13'}" BrcdHeight="30" BarsWidth="3"/>
+
+EAN 13: Width 4
+    <c:ACBarcodeZone Value="{!'9780201734843'}" BrcdType="{!'ean13'}" BrcdHeight="30" BarsWidth="4"/>
+
+EAN 13: Width 5
+    <c:ACBarcodeZone Value="{!'9780201734843'}" BrcdType="{!'ean13'}" BrcdHeight="40" BarsWidth="5"/>    
+    
+EAN 13: Width 6
+    <c:ACBarcodeZone Value="{!'9780201734843'}" BrcdType="{!'ean13'}" BrcdHeight="40" BarsWidth="6"/>  
+    <br/><br/> 
+    
+EAN 8:
+    <c:ACBarcodeZone Value="{!'83939399'}" BrcdType="{!'ean8'}" BrcdHeight="40" />
+
+EAN 8: Width 2
+    <c:ACBarcodeZone Value="{!'83939399'}" BrcdType="{!'ean8'}" BrcdHeight="30" BarsWidth="2"/>
+
+EAN 8: Width 3
+    <c:ACBarcodeZone Value="{!'83939399'}" BrcdType="{!'ean8'}" BrcdHeight="30" BarsWidth="3"/>
+
+EAN 8: Width 4
+    <c:ACBarcodeZone Value="{!'83939399'}" BrcdType="{!'ean8'}" BrcdHeight="30" BarsWidth="4"/>
+
+EAN 8: Width 5
+    <c:ACBarcodeZone Value="{!'83939399'}" BrcdType="{!'ean8'}" BrcdHeight="40" BarsWidth="5"/>    
+    
+EAN 8: Width 6
+    <c:ACBarcodeZone Value="{!'83939399'}" BrcdType="{!'ean8'}" BrcdHeight="40" BarsWidth="6"/>             
+</apex:page>

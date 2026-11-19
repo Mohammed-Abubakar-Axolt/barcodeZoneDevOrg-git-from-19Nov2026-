@@ -1,0 +1,606 @@
+<apex:component controller="BarcodeController" access="global" >
+    <apex:attribute name="Value" description="Barcode value" type="String"  required="true" assignTo="{!Brcd}" access="global" />
+    <apex:attribute name="BrcdType" description="Barcode Type" type="String" required="true" assignTo="{!BarcdType}" access="global" />
+    <apex:attribute name="BrcdCorrection" description="QR Correction Level" type="String" required="false" assignTo="{!correctionLevel}" access="global" ></apex:attribute>   
+    <apex:attribute name="BrcdHeight" description="height" type="String" required="false" assignTo="{!Height}" access="global" ></apex:attribute>
+    <apex:attribute name="BrcdWidth" description="width" type="String" required="false" assignTo="{!Width}" access="global" ></apex:attribute>    
+    <apex:attribute name="Brcd-sObjectParentId" description="sObject" type="String" required="true" assignTo="{!SObjectParentId}" access="global" ></apex:attribute>
+    <apex:attribute name="Brcd-sObjectParentName" description="sObject" type="String" required="false" assignTo="{!SObjectParentName}" access="global" ></apex:attribute>
+    <apex:attribute name="Brcd-sObjectlookupName" description="sObject" type="String" required="false" assignTo="{!SObjectlookupName}" access="global" ></apex:attribute>
+    <apex:attribute name="hideText" description="Barcode Text Hide" type="boolean" required="false" assignTo="{!brcdValHide}" access="global" default="false"/>  
+    <apex:dynamicComponent componentValue="{!JQueryMin}"></apex:dynamicComponent> 
+    <apex:dynamicComponent componentValue="{!DataMatrixScript}"></apex:dynamicComponent>
+    <apex:dynamicComponent componentValue="{!QRJScript}"></apex:dynamicComponent>
+    <apex:dynamicComponent componentValue="{!JQRScript}"></apex:dynamicComponent>    
+    <apex:dynamicComponent componentValue="{!PDF417Min}"></apex:dynamicComponent>        
+    <apex:stylesheet value="{!QRCSS}"></apex:stylesheet>    
+
+    <script src="/soap/ajax/63.0/connection.js" type="text/javascript"></script>
+                
+    <script> 
+        window.oncontextmenu = function() {return false;}
+        sforce.connection.sessionId = "{!$Api.Session_Id}";
+    </script>
+    
+    <input id="comValue" type="hidden" style="display:none"/>  
+    
+    <script type="text/javascript">
+        var loggedUserId = sforce.connection.getUserInfo().userId;
+        var loggedOrgId = sforce.connection.getUserInfo().organizationId;
+        var loggedOrgName = sforce.connection.getUserInfo().organizationName;
+        console.log('--- loggedUserId : '+loggedUserId +' --- loggedOrgName : '+loggedOrgName +' --- loggedOrgId : '+loggedOrgId);  
+        
+        var globalAttachmentId = '';
+        var globalpdfUrl = '';               
+        
+        var barcodezone = {
+            base: {
+                initPots: function(){ 
+                        return {
+                            PARENTID: "{!JSENCODE(SObjectParentId)}",
+                            PARENT: "{!JSENCODE(SObjectParentName)}",
+                            LOOKUP: "{!JSENCODE(SObjectlookupName)}",
+                            LOGGEDUSER: sforce.connection.getUserInfo().userId
+                        };
+                        
+                 },
+                 initObject: function(){
+                     return{
+                            ATTACH: 1007,
+                            DOCUMENT: 1008,
+                            MISC: 1000
+                      };
+                 }
+            },
+            generator: {
+                pdf417:function(textEntered, barcodeH, barcodeW){
+
+                    var pI  = barcodezone.base.initPots().PARENTID;
+                    var oP = barcodezone.base.initPots().PARENT;
+                    var oLU  = barcodezone.base.initPots().LOOKUP;
+
+                            
+                },
+                qrCode: function(textEntered, barcodeH, barcodeW){
+                            
+                    var pI  = barcodezone.base.initPots().PARENTID;
+                    var oP = barcodezone.base.initPots().PARENT;
+                    var oLU  = barcodezone.base.initPots().LOOKUP;
+                        
+                            
+                },
+                datamatrix: function(textEntered, barcodeH, barcodeW){
+
+                    var pI  = barcodezone.base.initPots().PARENTID;
+                    var oP = barcodezone.base.initPots().PARENT;
+                    var oLU  = barcodezone.base.initPots().LOOKUP;
+
+                }
+            },
+            processor: {
+                    pdfProcessor: {
+                        initPDF417: function(textEntered){
+                            PDF417.init(textEntered);
+                        },
+                         generatePDF417: function(barcodeH,barcodeW,parentId){
+                            var barcode=PDF417.getBarcodeArray(),bw=2,bh=2,e="",canvas=document.createElement("canvas");
+                            canvas.width=bw*barcode.num_cols;canvas.height=bh*barcode.num_rows;
+                            var height= barcodeH+'px';var width= barcodeW+'px';
+                            console.log('In pdfProcessor');
+                            //console.log('height : '+height+' width : '+width);                                
+                            canvas.style.height = height;
+                            canvas.style.width = width;
+                            if(height == ''){canvas.style.height = '150px';}if(width == ''){canvas.style.width = '150px';}
+                            canvas.setAttribute("id", "canvasId"+parentId);
+                            jQuery("#"+parentId).append(canvas);
+
+                            for(var ctx=canvas.getContext("2d"),y=0,r=0;r<barcode.num_rows;++r){
+                                for(var x=0,c=0;c<barcode.num_cols;++c)
+                                    1==barcode.bcode[r][c]&&ctx.fillRect(x,y,bw,bh),x+=bw;y+=bh; 
+                            }
+                        }    
+                    },
+                    qrProcessor: {
+                        initQR: function(){
+                            
+                        },
+                        generateQR: function(height,width,correctLevel, parentId, textEntered){
+                            console.log('In qrProcessor');
+                            //console.log('height : '+height+' width : '+width);                      
+                            if(height == ''){height=150;} if(width== ''){width=150;}
+                            jQuery('#'+parentId).qrcode({
+                                render: "canvas",
+                                border: 20,
+                                text: textEntered,
+                                height: height,                                
+                                width: width,
+                                qrId: "BRCD"+parentId, 
+                                correctLevel: correctLevel
+                            });
+                        }
+                    },
+                    datamatrixProcessor: {
+                        initDataMatrix: function(barcodeH,barcodeW,correctLevel, textEntered){
+                            console.log('In datamatrixProcessor');
+                            //console.log('height : '+barcodeH+' width : '+barcodeW);
+                            if(barcodeH == ''){barcodeH=150;} if(barcodeW== ''){barcodeW=150;}
+                            var moduleSize = Math.round(((parseFloat(barcodeW) + parseFloat(barcodeH)*2)/100));
+                                
+                            var settings = {
+                                  output:'canvas',
+                                  moduleSize: moduleSize
+                            };  
+                            return settings;
+                        },
+                        generateDataMatrix: function(qrId,textEntered,settings){
+                            jQuery("#"+qrId).barcode(textEntered, 'datamatrix', settings);
+                        }    
+                    }
+            },
+            detectionor:{ 
+
+                    conditionalCheck: function(oI,oLU,oP){
+                        
+                        if((oI != null && oI != '') && oI != 'Document'){
+                                return barcodezone.base.initObject().ATTACH;
+                                
+                            }else if((oI != null && oI != '') && oI == 'Document'){
+                                return barcodezone.base.initObject().DOCUMENT;
+                                
+                            }else if(oI == ''){
+                                return barcodezone.base.initObject().MISC;
+                            }       
+                    }
+            },
+            executor:{ 
+                sfdc:{
+                        init: function(){
+                            
+                        },
+                        manipulator:{    
+
+                            fieldSet: function(objectName){
+                                var described = sforce.connection.describeSObject(objectName);
+                                var allFields;
+                                    //console.log('objectName : '+objectName);
+                                    //console.log('described Label : '+described.label+' described.Name : '+described.name);
+                                    for (var i=0; i<described.fields.length; i++) {
+                                        var field = described.fields[i];
+                                        if(allFields == null || allFields == ''){
+                                            allFields = field.name;
+                                        }else{
+                                            allFields = allFields + ', ' + field.name;
+                                        } 
+                                    }                                      
+                                    return allFields;
+                                }
+                        },
+                        creational:{
+                            createDocument:function(objParent,image){
+                                var doc = new sforce.SObject("Document");    
+                                    doc.FolderId = "";
+                                    doc.ContentType = "image/png";
+                                    doc.Body = image;
+                                    doc.Name = "PDF-"+objParent+".png";
+                                    sforce.connection.create([doc],{onSuccess:barcodezone.success, onFailure:barcodezone.failure});
+                            },
+                            createBarcode:function(objId, lkpName, type){
+                                console.log('createBarcode objId : '+objId+' lkpName : '+lkpName+' Type : '+type);
+                                var x2DBarcode = new sforce.SObject("BarcodeZone__X2D_Barcode__c");
+                                x2DBarcode.BarcodeZone__Barcode_Type__c = type;
+                                x2DBarcode.lkpName = objId;
+                                var result = sforce.connection.create([x2DBarcode]);
+
+                                  if (result[0].getBoolean("success")) {
+                                        console.log("new x2DBarcode created with id " + result[0].id);
+                                        return result[0].Id;
+                                  }else{
+                                        console.log("failed to create x2DBarcode " + result[0]);
+                                        return null;
+                                  }
+                            },
+                            createAttachment:function(parentId, body, name){
+                                var x2DBCAttachment = new sforce.SObject("Attachment");
+                                    x2DBCAttachment.ParentId = parentId;
+                                    x2DBCAttachment.ContentType = "image/png";
+                                    //newAttachment.Body = document.getElementById("canvasId{!JSENCODE(SObjectParentId)}").toDataURL().split(',')[1];
+                                    x2DBCAttachment.Body = body;
+                                    x2DBCAttachment.Name = name;
+                                    
+                                var newAttachments = sforce.connection.create([x2DBCAttachment]);
+                                    if (newAttachments[0].getBoolean("success"))
+                                        //return newAttachments[0].id;
+                                        return newAttachments[0];
+                            }
+                        },
+                        updational:{
+                            updateBarcode:function(recordId, url, type){
+                                var updateBarcode = new sforce.SObject("BarcodeZone__X2D_Barcode__c");
+                                    updateBarcode.id = recordId;
+                                    if(type == 'pdf417')
+                                        updateBarcode.BarcodeZone__PDF417_URL__c = url;
+                                    else if(type == 'qrcode')
+                                        updateBarcode.BarcodeZone__QRCODE_URL__c = url; 
+                                    else if(type == 'datamatrix')
+                                        updateBarcode.BarcodeZone__DATAMATRIX_URL__c = url;                                         
+                                sforce.connection.update([updateBarcode],{onSuccess:barcodezone.success, onFailure:barcodezone.failure});
+                                return updateBarcode;
+                            },
+                            updateProduct:function(parentName, recordId, attachmentId, type){
+                                
+                                var updateProduct = new sforce.SObject(parentName);
+                                if(updateProduct.id == null || updateProduct.id == ''){  
+                                    updateProduct.id = recordId;
+                                /*    
+                                    if(type == 'pdf417'){
+                                        updateProduct.BarcodeZone__PDF_417_Attachment_ID__c = attachmentId;
+                                    }   
+                                    else if(type == 'qrcode'){
+                                        updateProduct.BarcodeZone__QR_CODE_Attachment_ID__c = attachmentId;
+                                    }   
+                                    else if(type == 'datamatrix'){
+                                        updateProduct.BarcodeZone__DATA_MATRIX_Attachment_ID__c = attachmentId;
+                                    }  
+                                */
+                                  
+                                    if(type == 'pdf417'){
+                                        updateProduct.PDF_417_Attachment_ID__c = attachmentId;
+                                    }   
+                                    else if(type == 'qrcode'){
+                                        updateProduct.QR_CODE_Attachment_ID__c = attachmentId;
+                                    }   
+                                    else if(type == 'datamatrix'){
+                                        updateProduct.DATA_MATRIX_Attachment_ID__c = attachmentId;
+                                    } 
+                                  
+                                }   
+                            
+                                sforce.connection.update([updateProduct],{onSuccess:barcodezone.success, onFailure:barcodezone.failure});
+                                return updateProduct;
+                            } 
+                        },
+                        retrievor:{ 
+                            retrieveGeneric: function(objectName, objectId){
+                                //console.log('sObjcParentId : '+objectId+' objectName : '+objectName);   
+                                var genericQuery = sforce.connection.query("SELECT "+ barcodezone.executor.sfdc.manipulator.fieldSet(objectName) +" FROM "+objectName+" where Id='"+ objectId +"' Limit 1");
+                                
+                                return genericQuery.getArray('records');
+                            },
+                            retrieveSpecific: function(lu, objId, type){
+                                //console.log('type : '+type);
+                                var specificQuery = sforce.connection.query("select Id, Name, "+lu+", BarcodeZone__Barcode_Type__c, BarcodeZone__PDF417_URL__c "+
+                                                                            "from BarcodeZone__X2D_Barcode__c "+
+                                                                            "where "+lu+" = '"+objId+"' "+
+                                                                            "and BarcodeZone__Barcode_Type__c = '"+type+"' "+" Limit 1");//and 
+
+                                return specificQuery.getArray('records');
+                            },
+                            retrieveAttach: function(objectName, parentId){
+                                
+                                var specificAttach = sforce.connection.query("SELECT "+ barcodezone.executor.sfdc.manipulator.fieldSet(objectName) +" FROM "+objectName+" where ParentId='"+parentId+"' "+
+                                                                                            "and OwnerId='"+ barcodezone.base.init.potentials.LOGGEDUSER +"' Limit 1");
+                                return specificAttach.getArray('records');
+
+                          }
+                     }  
+                }
+            }, 
+            failure: function(){
+
+            },
+            success: function(){
+
+            }
+        }
+
+        var communityCheck = false;
+        function communityCheckAndProceed(sObjcParentId, SObjectlookupName, SObjectParentName, image, type){
+            console.log('Inside communityCheckAndProceed : '+document.location.href);
+            console.log('sObjcParentId : '+sObjcParentId+' SObjectlookupName : '+SObjectlookupName+' SObjectParentName : '+SObjectParentName+' Barcode Type : '+type);
+            Visualforce.remoting.Manager.invokeAction(
+                                '{!$RemoteAction.BarcodeController.processUtility}',document.location.href,
+                                function(result, event){
+                                    console.log('event :'+event.status);
+                                    if(event.status){
+                                        console.log('result from remote: '+result);
+                                        docRefer = result;                                                                                   
+                                        console.log('comValue : '+result);  
+                                        document.getElementById('comValue').value = result;
+                                        communityCheck = true;
+                                        doCreateSObjectAttachmentProcess(sObjcParentId, SObjectlookupName, SObjectParentName, image, type);
+                                    }
+                            }, 
+                            {escape: true}
+                            );          
+        }
+                
+        function doCreateSObjectAttachmentProcess(sObjcParentId, SObjectlookupName, SObjectParentName, image, type){            
+            //console.log('image :'+image);
+            var imageExists = false; if(image != null && image != '' && image != 'undefined') imageExists = true;
+            console.log('Inside doCreateSObjectAttachmentProcess imageExists : '+imageExists);
+            console.log('sObjcParentId : '+sObjcParentId+' SObjectlookupName : '+SObjectlookupName+' SObjectParentName : '+SObjectParentName+' Barcode Type : '+type);
+            
+            var sObjectResultFields = '';               
+            sObjectResultFields = barcodezone.executor.sfdc.manipulator.fieldSet(SObjectParentName);
+            //console.log('sObjectResultFields : '+sObjectResultFields);                                            
+            var sObjects = barcodezone.executor.sfdc.retrievor.retrieveGeneric(SObjectParentName, sObjcParentId);
+            var sObjectId = sObjects[0].Id;                 
+            console.log('sObject record exist : '+sObjectId);
+            
+            var barcodes = barcodezone.executor.sfdc.retrievor.retrieveSpecific(SObjectlookupName, sObjectId, type);
+            var barcodeId;
+            var attachmentId;
+            
+            if(barcodes.length > 0){
+                attachmentId = '';
+                barcodeId = barcodes[0].Id;
+                console.log('Barcode record exist for this object : '+barcodeId+' Name : '+barcodes[0].Name);           
+                  
+                var attachQuery = sforce.connection.query("SELECT Id, Name, OwnerId, Body FROM Attachment where ParentId='"+ barcodes[0].Id +"' "+
+                                                            "and OwnerId='"+ loggedUserId +"' Limit 1");
+                var attachments = attachQuery.getArray('records');    
+                
+                var attachQueryTemp = sforce.connection.query("SELECT Id, Name, OwnerId, Body FROM Attachment where ParentId='"+ barcodes[0].Id +"' "+
+                                                            "and OwnerId='"+ loggedUserId +"' Limit 1");
+                                                                
+                var attachmentsTemp = attachQueryTemp.getArray('records');
+                  
+                if(attachments.length == 1){
+                    attachmentId = '';
+                    console.log('Attachment exist for the barcode record');
+                    if(attachments[0].OwnerId == loggedUserId){
+                        console.log('Attachment created by the logged user exists');
+                    }
+                    //console.log('Before attachment body update : '+imageBrcdData);                                        
+                    attachments[0].ContentType = "image/png";                   
+                    attachments[0].Body = image;                    
+                    attachments[0].Name = barcodes[0].Name;                 
+                    //console.log('Before attachment update');
+                    sforce.connection.update([attachments[0]],{onSuccess:barcodezone.success, onFailure:barcodezone.failure});                                  
+                    //console.log('attachments[0] Update : '+attachments[0]);
+                    
+                    attachmentId = attachmentsTemp[0].Id;
+                    console.log('Attachment updated : '+attachmentId);
+                    var base_url = window.location.origin;
+                    comAppendVal = document.getElementById('comValue').value;
+                    //comAppendVal = '/barcode';
+                    console.log('comAppendVal :'+comAppendVal);
+                    var pdf417_url = base_url+comAppendVal+'/servlet/servlet.FileDownload?file='+attachmentId;
+                    globalpdfUrl = pdf417_url;  
+                    //console.log('pdf417_url : '+pdf417_url+' globalpdfUrl : '+globalpdfUrl);
+                    
+                    var updateBarcode = barcodezone.executor.sfdc.updational.updateBarcode(barcodeId, pdf417_url, type);
+                    var updateProduct = barcodezone.executor.sfdc.updational.updateProduct(SObjectParentName, sObjectId, attachmentId, type);
+                    //console.log('updateBarcode : '+updateBarcode);
+                    //console.log('updateProduct : '+updateProduct);                  
+                    
+                    if(type == 'pdf417'){
+                        var imageBrcdVal = document.getElementById('imageBrcdPDF'+sObjcParentId).src;                                        
+                        //console.log('imageBrcdPDF First Value :'+imageBrcdVal);                
+                        document.getElementById('imageBrcdPDF'+sObjcParentId).src = base_url+comAppendVal+'/servlet/servlet.FileDownload?file='+attachmentId;
+                        globalAttachmentId = attachmentId;
+                        var imageBrcdValAfter = document.getElementById('imageBrcdPDF'+sObjcParentId).src;
+                        console.log('imageBrcdPDF Final Value : '+imageBrcdValAfter);                                      
+                    }
+                    else if(type == 'qrcode'){
+                        var imageBrcdVal = document.getElementById('imageBrcdQR'+sObjcParentId).src;                                        
+                        //console.log('imageBrcdQR First Value :'+imageBrcdVal);
+                        document.getElementById('imageBrcdQR'+sObjcParentId).src = base_url+comAppendVal+'/servlet/servlet.FileDownload?file='+attachmentId;
+                        globalAttachmentId = attachmentId;
+                        var imageBrcdValAfter = document.getElementById('imageBrcdQR'+sObjcParentId).src;
+                        console.log('imageBrcdQR Final Value : '+imageBrcdValAfter);                                      
+                    }
+                    else if(type == 'datamatrix'){
+                        var imageBrcdVal = document.getElementById('imageBrcdDMAT'+sObjcParentId).src;                                        
+                        //console.log('imageBrcdDMAT First Value :'+imageBrcdVal);
+                        document.getElementById('imageBrcdDMAT'+sObjcParentId).src = base_url+comAppendVal+'/servlet/servlet.FileDownload?file='+attachmentId;
+                        globalAttachmentId = attachmentId;
+                        var imageBrcdValAfter = document.getElementById('imageBrcdDMAT'+sObjcParentId).src;
+                        console.log('imageBrcdDMAT Final Value : '+imageBrcdValAfter);                                      
+                    }                   
+                }
+                else{
+                    console.log('No attachment for the barcode record exists : '+barcodeId+' Name : '+barcodes[0].Name);
+                    attachmentId = '';
+                    
+                    var attachment = barcodezone.executor.sfdc.creational.createAttachment(barcodeId, image, barcodes[0].Name);
+                    attachmentId = attachment.id;
+                    attachment = barcodezone.executor.sfdc.retrievor.retrieveGeneric("Attachment", attachmentId);                 
+                    console.log('New Attachment record created : '+attachment[0].Id+' Name : '+attachment[0].Name);                 
+                    
+                    var base_url = window.location.origin;
+                    comAppendVal = document.getElementById('comValue').value;
+                    //comAppendVal = '/barcode';
+                    console.log('comAppendVal :'+comAppendVal);
+                    var pdf417_url = base_url+comAppendVal+'/servlet/servlet.FileDownload?file='+attachmentId;
+                    globalpdfUrl = pdf417_url; 
+                    //console.log('pdf417_url : '+pdf417_url+' globalpdfUrl : '+globalpdfUrl);
+                    
+                    var updateBarcode = barcodezone.executor.sfdc.updational.updateBarcode(barcodeId, pdf417_url, type);
+                    var updateProduct = barcodezone.executor.sfdc.updational.updateProduct(SObjectParentName, sObjectId, attachmentId, type);
+                    //console.log('updateBarcode : '+updateBarcode);
+                    //console.log('updateProduct : '+updateProduct);
+
+                    if(type == 'pdf417'){
+                        var imageBrcdVal = document.getElementById('imageBrcdPDF'+sObjcParentId).src;                                        
+                        //console.log('imageBrcdPDF First Value :'+imageBrcdVal);                
+                        document.getElementById('imageBrcdPDF'+sObjcParentId).src = base_url+comAppendVal+'/servlet/servlet.FileDownload?file='+attachmentId;
+                        globalAttachmentId = attachmentId;
+                        var imageBrcdValAfter = document.getElementById('imageBrcdPDF'+sObjcParentId).src;
+                        console.log('imageBrcdPDF Final Value : '+imageBrcdValAfter);                                    
+                    }
+                    else if(type == 'qrcode'){
+                        var imageBrcdVal = document.getElementById('imageBrcdQR'+sObjcParentId).src;                                        
+                        //console.log('imageBrcdQR First Value :'+imageBrcdVal);                
+                        document.getElementById('imageBrcdQR'+sObjcParentId).src = base_url+comAppendVal+'/servlet/servlet.FileDownload?file='+attachmentId;
+                        globalAttachmentId = attachmentId;
+                        var imageBrcdValAfter = document.getElementById('imageBrcdQR'+sObjcParentId).src;
+                        console.log('imageBrcdQR Final Value : '+imageBrcdValAfter);                                    
+                    }
+                    else if(type == 'datamatrix'){
+                        var imageBrcdVal = document.getElementById('imageBrcdDMAT'+sObjcParentId).src;                                        
+                        //console.log('imageBrcdDMAT First Value :'+imageBrcdVal);                
+                        document.getElementById('imageBrcdDMAT'+sObjcParentId).src = base_url+comAppendVal+'/servlet/servlet.FileDownload?file='+attachmentId;
+                        globalAttachmentId = attachmentId;
+                        var imageBrcdValAfter = document.getElementById('imageBrcdDMAT'+sObjcParentId).src;
+                        console.log('imageBrcdDMAT Final Value : '+imageBrcdValAfter);                                       
+                    }                                                                                        
+                    
+                }   
+            }
+            else{ 
+                console.log('There is no Barcode record for this object : '+sObjectId);
+                var newBarcodeId;
+                var newBarcodeName;
+                var newAttachmentId;
+                //console.log('sObjectId : '+sObjectId+' SObjectlookupName : '+SObjectlookupName+' Barcode Type : '+type);
+                
+                var newBarcode = new sforce.SObject("BarcodeZone__X2D_Barcode__c");
+                newBarcode.BarcodeZone__Barcode_Type__c = type;
+                newBarcode.{!SObjectlookupName} = sObjects[0].Id;
+                //newBarcode.BarcodeZone__Product__c = sObjects[0].Id;
+                //var newBarcodes = barcodezone.executor.sfdc.creational.createBarcode(sObjectId, SObjectlookupName, type);
+                var newBarcodes = sforce.connection.create([newBarcode]);
+                newBarcodeId = newBarcodes[0].id;
+                newBarcodeName = newBarcodes[0].Name;
+
+                newBarcode = barcodezone.executor.sfdc.retrievor.retrieveGeneric("BarcodeZone__X2D_Barcode__c", newBarcodeId);                  
+                newBarcodeId = newBarcode[0].Id;
+                newBarcodeName = newBarcode[0].Name;                                        
+                console.log('New Barcode record created : '+newBarcodeId+' newBarcodeName : '+newBarcodeName);
+                
+                var newAttachment = barcodezone.executor.sfdc.creational.createAttachment(newBarcodeId, image, newBarcodeName);
+                newAttachmentId = newAttachment.id;
+                newAttachment = barcodezone.executor.sfdc.retrievor.retrieveGeneric("Attachment", newAttachmentId);                 
+                console.log('New Attachment record created : '+newAttachment[0].Id+' Name : '+newAttachment[0].Name);
+
+                var base_url = window.location.origin;
+                comAppendVal = document.getElementById('comValue').value;
+                //comAppendVal = '/barcode';
+                console.log('comAppendVal :'+comAppendVal);
+                var pdf417_url = base_url+comAppendVal+'/servlet/servlet.FileDownload?file='+newAttachmentId;
+                globalpdfUrl = pdf417_url; 
+                //console.log('pdf417_url : '+pdf417_url+' globalpdfUrl : '+globalpdfUrl);
+                
+                var newBarcodeUpdate = barcodezone.executor.sfdc.updational.updateBarcode(newBarcodeId, pdf417_url, type);
+                var updateProduct = barcodezone.executor.sfdc.updational.updateProduct(SObjectParentName, sObjectId, newAttachmentId, type);
+                //console.log('newBarcodeUpdate : '+newBarcodeUpdate);
+                //console.log('updateProduct : '+updateProduct);
+
+                if(type == 'pdf417'){
+                    var imageBrcdVal = document.getElementById('imageBrcdPDF'+sObjcParentId).src;                                        
+                    //console.log('imageBrcdPDF First Value :'+imageBrcdVal);                
+                    document.getElementById('imageBrcdPDF'+sObjcParentId).src = base_url+comAppendVal+'/servlet/servlet.FileDownload?file='+newAttachmentId;
+                    globalAttachmentId = newAttachmentId;
+                    var imageBrcdValAfter = document.getElementById('imageBrcdPDF'+sObjcParentId).src;
+                    console.log('imageBrcdPDF Final Value : '+imageBrcdValAfter);                                       
+                }
+                else if(type == 'qrcode'){
+                    var imageBrcdVal = document.getElementById('imageBrcdQR'+sObjcParentId).src;                                        
+                    //console.log('imageBrcdQR First Value :'+imageBrcdVal);                
+                    document.getElementById('imageBrcdQR'+sObjcParentId).src = base_url+comAppendVal+'/servlet/servlet.FileDownload?file='+newAttachmentId;
+                    globalAttachmentId = newAttachmentId;
+                    var imageBrcdValAfter = document.getElementById('imageBrcdQR'+sObjcParentId).src;
+                    console.log('imageBrcdQR Final Value : '+imageBrcdValAfter);                                                                        
+                }
+                else if(type == 'datamatrix'){
+                    var imageBrcdVal = document.getElementById('imageBrcdDMAT'+sObjcParentId).src;                                        
+                    //console.log('imageBrcdDMAT First Value :'+imageBrcdVal);                
+                    document.getElementById('imageBrcdDMAT'+sObjcParentId).src = base_url+comAppendVal+'/servlet/servlet.FileDownload?file='+newAttachmentId;
+                    globalAttachmentId = newAttachmentId;
+                    var imageBrcdValAfter = document.getElementById('imageBrcdDMAT'+sObjcParentId).src;
+                    console.log('imageBrcdDMAT Final Value : '+imageBrcdValAfter);                                       
+                                   
+                }                                       
+
+            }
+        }       
+        
+    </script>
+    
+    <!-- PDF417 Barcode starts -->
+    <apex:outputPanel rendered="{!IF(BarcdType == 'pdf417', true, false )}"><!-- style="display:{!IF(BarcdType == 'pdf417', '', 'none')}"-->                  
+        <apex:outputPanel style="display:{!IF(BarcdType == 'pdf417', '', 'none')}">           
+            <!--<br/>COMPONENT IMAGE:<br/>-->
+            <span id="pdfBarcode{!HTMLENCODE(SObjectParentId)}" style="display:none;"></span>
+            
+            <!--<br/>URL IMAGE:<br/>-->
+            <img id="imageBrcdPDF{!HTMLENCODE(SObjectParentId)}" src="/" />
+        </apex:outputPanel>         
+        
+        <script type="text/javascript">
+            jQuery(function processPDF417Barcode() {                       
+                var _pdf = barcodezone.processor.pdfProcessor;
+                _pdf.initPDF417("{!JSENCODE(Brcd)}");
+                _pdf.generatePDF417("{!JSENCODE(Height)}","{!JSENCODE(Width)}","pdfBarcode{!HTMLENCODE(SObjectParentId)}");
+
+                var imageData = document.getElementById("canvasIdpdfBarcode{!HTMLENCODE(SObjectParentId)}").toDataURL().split(',')[1];
+                //console.log(imageData);  
+                //Check for community parameter and create attachment
+                //console.log('Before communityCheckAndProceed pdf417');
+                communityCheckAndProceed("{!JSENCODE(SObjectParentId)}", "{!JSENCODE(SObjectlookupName)}", "{!JSENCODE(SObjectParentName)}", imageData, "pdf417");
+                console.log('PDF417 Processor ends');
+            });                       
+        </script>     
+    </apex:outputPanel>
+    <!-- PDF417 Barcode Ends --> 
+                    
+    
+    <!-- QR CODE Barcode starts -->
+    <apex:outputPanel rendered="{!IF(BarcdType == 'qrcode', true, false )}"><!-- style="display:{!IF(BarcdType == 'qrcode', '', 'none')}" -->                       
+        <apex:outputPanel style="display:{!IF(BarcdType == 'qrcode', '', 'none')}">           
+            <!--<br/>COMPONENT IMAGE:<br/>-->
+            <span id="barcode{!HTMLENCODE(SObjectParentId)}" style="display:none;"></span>            
+            <!--<br/>URL IMAGE:<br/>-->
+            <img id="imageBrcdQR{!HTMLENCODE(SObjectParentId)}" src="/" />
+        </apex:outputPanel> 
+        
+        <script type="text/javascript">
+            jQuery(function processQRCODEBarcode() {      
+                var qr = barcodezone.processor.qrProcessor;
+                qr.generateQR("{!JSENCODE(Height)}","{!JSENCODE(Width)}",2, "barcode{!HTMLENCODE(SObjectParentId)}", "{!JSENCODE(Brcd)}");
+
+                var imageData = document.getElementById("BRCDbarcode{!HTMLENCODE(SObjectParentId)}").toDataURL().split(',')[1];
+                //alert(imageData);  
+                //Check for community parameter and create attachment
+                //console.log('Before communityCheckAndProceed qrcode');
+                communityCheckAndProceed("{!JSENCODE(SObjectParentId)}", "{!JSENCODE(SObjectlookupName)}", "{!JSENCODE(SObjectParentName)}", imageData, "qrcode");
+                console.log('QR Processor ends');   
+            });                      
+        </script>     
+    </apex:outputPanel>
+    <!-- QR CODE Barcode Ends --> 
+
+
+    <!-- DATAMATRIX Barcode starts -->
+        <apex:outputPanel rendered="{!IF(BarcdType == 'datamatrix', true, false )}"><!-- style="display:{!IF(BarcdType == 'datamatrix', '', 'none')}" -->  
+            <!--<br/>COMPONENT IMAGE:<br/>-->
+            <!--<canvas id="dmBarcode{!HTMLENCODE(SObjectParentId)}" width="300" height="300" ></canvas>-->
+        <apex:outputPanel style="display:{!IF(BarcdType == 'datamatrix', '', 'none')}">           
+            <!--<br/>COMPONENT IMAGE:<br/>-->
+            <canvas id="dmBarcode{!HTMLENCODE(SObjectParentId)}" width="300" height="300" style="display:none;"></canvas>            
+            <!--<br/>URL IMAGE:<br/>-->
+            <!--<img id="imageBrcdDMAT{!HTMLENCODE(SObjectParentId)}" src="/" />-->
+        </apex:outputPanel> 
+        
+        <script type="text/javascript">        
+            jQuery(function processDMATBarcode() {
+                var datamatrix = barcodezone.processor.datamatrixProcessor;
+                var options = datamatrix.initDataMatrix("{!JSENCODE(Height)}","{!JSENCODE(Width)}",2,"{!JSENCODE(Brcd)}");
+                //var options = datamatrix.initDataMatrix("150","150",2);
+                var imageData = datamatrix.generateDataMatrix("dmBarcode{!HTMLENCODE(SObjectParentId)}", "{!JSENCODE(Brcd)}",options);                 
+                //console.log(imageData);   
+                //var imageDataU = datamatrix.generateDataMatrix("imageBrcdDMAT{!HTMLENCODE(SObjectParentId)}", "{!JSENCODE(Brcd)}",options);               
+                //console.log(imageDataU);                    
+                //Check for community parameter and create attachment
+                //console.log('Before communityCheckAndProceed datamatrix');
+                communityCheckAndProceed("{!JSENCODE(SObjectParentId)}", "{!JSENCODE(SObjectlookupName)}", "{!JSENCODE(SObjectParentName)}", imageData, "datamatrix");              
+                console.log('DMAT Processor ends');                                                   
+            });        
+        </script>
+        
+        </apex:outputPanel>
+    <!-- DATAMATRIX Barcode Ends -->     
+
+     
+</apex:component>

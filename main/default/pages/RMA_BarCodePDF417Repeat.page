@@ -1,0 +1,46 @@
+<apex:page Controller="RMA_BarCodePDF417Controller" showHeader="false" >
+    <apex:form >       
+        <!--<apex:commandLink value="Get Repeat Barcode" action="{!show}" >
+        </apex:commandLink>
+        <br/>-->                                              
+        <apex:outputPanel id="pdf417">                                                 
+           <apex:repeat value="{!rmaToInsert}" var="rma" >
+                <apex:outputText value="{!rma.Name}"/><br/>
+                <apex:outputPanel >                
+                    <apex:include pageName="communitySetup"/>
+                                        
+                    <c:AC2DBarcodeZone BrcdType="pdf417" Value="{!rma.Name}" Brcd-sObjectParentId="{!rma.Id}" Brcd-sObjectParentName="BarcodeZone__RMAPortal__c" Brcd-sObjectlookupName="BarcodeZone__RMA_Number__c">
+                    </c:AC2DBarcodeZone><br/>
+                    
+                </apex:outputPanel>
+                <br/>
+            </apex:repeat>
+        </apex:outputPanel> 
+        <apex:outputPanel id="qrcode">                                                 
+           <apex:repeat value="{!rmaToInsert}" var="rma" >
+                <apex:outputText value="{!rma.Name}"/><br/>
+                <apex:outputPanel >                
+                    <apex:include pageName="communitySetup"/>
+                                        
+                    <c:AC2DBarcodeZone BrcdType="qrcode" Value="{!rma.Name}" Brcd-sObjectParentId="{!rma.Id}" Brcd-sObjectParentName="BarcodeZone__RMAPortal__c" Brcd-sObjectlookupName="BarcodeZone__RMA_Number__c">
+                    </c:AC2DBarcodeZone><br/>
+                    
+                </apex:outputPanel>
+                <br/>
+            </apex:repeat>
+        </apex:outputPanel>
+        <!--<apex:outputPanel id="datamatrix">                                                 
+           <apex:repeat value="{!rmaToInsert}" var="rma" >
+                <apex:outputText value="{!rma.Name}"/>
+                <apex:outputPanel >                
+                    <apex:include pageName="communitySetup"/>
+                                        
+                    <c:AC2DBarcodeZone BrcdType="datamatrix" Value="{!rma.Name}" Brcd-sObjectParentId="{!rma.Id}" Brcd-sObjectParentName="BarcodeZone__RMAPortal__c" Brcd-sObjectlookupName="BarcodeZone__RMA_Number__c" BrcdHeight="120" BrcdWidth="120">
+                    </c:AC2DBarcodeZone><br/>
+                    
+                </apex:outputPanel>
+                <br/>
+            </apex:repeat>
+        </apex:outputPanel>-->                                        
+    </apex:form>        
+</apex:page>

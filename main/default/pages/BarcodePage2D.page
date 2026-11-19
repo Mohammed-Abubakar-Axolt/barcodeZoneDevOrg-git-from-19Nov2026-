@@ -1,0 +1,16 @@
+<apex:page standardController="RMAPortal__c">
+
+    <apex:include pageName="communitySetup"/>
+    
+    {!RMAPortal__c.Name} {!RMAPortal__c.Id} 
+    
+    <c:AC2DBarcodeZone BrcdType="pdf417" Value="{!RMAPortal__c.Name}" Brcd-sObjectParentId="{!RMAPortal__c.Id}" Brcd-sObjectParentName="BarcodeZone__RMAPortal__c" Brcd-sObjectlookupName="BarcodeZone__RMA_Number__c" >
+    </c:AC2DBarcodeZone>
+    <br/><br/>
+    <c:AC2DBarcodeZone BrcdType="qrcode" Value="{!RMAPortal__c.Name}" Brcd-sObjectParentId="{!RMAPortal__c.Id}" Brcd-sObjectParentName="BarcodeZone__RMAPortal__c" Brcd-sObjectlookupName="BarcodeZone__RMA_Number__c">
+    </c:AC2DBarcodeZone>
+    <!--<br/><br/>
+    <c:AC2DBarcodeZone BrcdType="datamatrix" Value="{!RMAPortal__c.Name}" Brcd-sObjectParentId="{!RMAPortal__c.Id}" Brcd-sObjectParentName="BarcodeZone__RMAPortal__c" Brcd-sObjectlookupName="BarcodeZone__RMA_Number__c" >
+    </c:AC2DBarcodeZone>-->
+             
+</apex:page>

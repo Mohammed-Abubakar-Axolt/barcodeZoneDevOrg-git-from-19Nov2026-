@@ -1,0 +1,4 @@
+<apex:page standardController="Account" extensions="DynamicVFComponent">
+    <apex:dynamicComponent componentValue="{!AccountDetails}"/>
+
+</apex:page>

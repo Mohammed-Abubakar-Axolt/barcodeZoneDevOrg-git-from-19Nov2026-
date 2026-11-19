@@ -1,0 +1,32 @@
+<apex:page standardController="Contact" cache="false" sidebar="false" id="BrcdPage" ><!-- renderAs="pdf">-->
+   <!--CODE 39:
+CODE 39 :
+    <c:ACBarcodeZone Value="{!Contact.LastName}" BrcdType="{!'code128'}" BrcdHeight="40" />
+<br/><br/>
+CODE 39 : Width 2
+    <c:ACBarcodeZone Value="{!Contact.LastName}" BrcdType="{!'code128'}" BrcdHeight="30" BarsWidth="2"/>   
+   
+   
+   
+    PDF417: 
+        <c:ACBarcodeZone2D BrcdType="pdf417" Value="{!Contact.LastName}" Brcd-sObjectParentId="{!Contact.Id}" >
+        </c:ACBarcodeZone2D> 
+        <br/>
+        <c:ACBarcodeZone2D BrcdType="pdf417" Value="{!Contact.Id}" Brcd-sObjectParentId="{!Contact.Id}" >
+        </c:ACBarcodeZone2D>     
+    
+    <br/>QR Code:                                     
+           <c:ACBarcodeZone2D BrcdType="qrcode" Value="{!Contact.LastName}" Brcd-sObjectParentId="{!Contact.Id}" >
+        </c:ACBarcodeZone2D>    
+   
+    <br/>DataMatrix: 
+        <c:ACBarcodeZone2D BrcdType="datamatrix" BrcdHeight="250" BrcdWidth="250" Value="{!Contact.LastName}" Brcd-sObjectParentId="{!Contact.Id}" >
+        </c:ACBarcodeZone2D>    
+   
+    -->
+<br/>QR Code:  
+    <c:AC2DBarcode BrcdType="qrcode" Value="Test" Brcd-sObjectParentId="1"/>
+       <c:ACBarcodeZone2D BrcdType="pdf417" Value="Mr. Sean Forbes" BrcdHeight="50" BrcdWidth="30">
+    </c:ACBarcodeZone2D> 
+    
+</apex:page>

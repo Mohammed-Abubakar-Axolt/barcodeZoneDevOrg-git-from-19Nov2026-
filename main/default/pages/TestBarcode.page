@@ -1,0 +1,85 @@
+<apex:page controller="testingrenderAsPdfController">
+    <html>
+        <head>
+            
+        </head>
+        <body>
+            
+            <Strong>barcodeCanvas using jquery/javascripts to generate pdf417 barcodes</Strong>
+            
+            <br/><br/>
+            
+            <canvas id="barcodeCanvas"></canvas>
+            
+            <br/><br/>
+            
+            <Strong>pdf417HtmlString</Strong>
+            
+            <br/><br/>
+            
+            
+            <apex:outputText value="{!pdf417HtmlString}" escape="false"></apex:outputText>
+            
+            
+            
+            <br/><br/>
+            
+            <!--script>
+            window.print();
+            </script-->
+            
+            <!--
+            <apex:outputPanel rendered="{!(brcdType == 'code128' || brcdType == 'code39' || brcdType == 'ean8' || brcdType == 'ean13')}">
+            	<c:ACBarcodeZone BrcdType="{!brcdType}" Value="{!wrap.Barcode}"/> 
+            </apex:outputPanel>
+            <apex:outputPanel rendered="{!(brcdType == 'qrcode' || brcdType == 'pdf417')}">
+            	<c:AC2DBarcode BrcdType="{!brcdType}" Value="{!wrap.Barcode}" Brcd-sObjectParentId="{!count}"/>
+            </apex:outputPanel>
+            -->
+            
+            ACBarcodeZone code128 -<br/>
+            <c:ACBarcodeZone BrcdType="code128" Value="ArshadTest"/> 
+            
+            <br/><br/>
+            
+            ACBarcodeZone pdf417 -<br/>
+			<c:ACBarcodeZone BrcdType="pdf417" Value="ArshadTest"/>
+            
+            <br/><br/>
+            
+            AC2DBarcode code128 -<br/>
+            <c:AC2DBarcode BrcdType="code128" Value="ArshadTest"/>
+            
+            <br/><br/>
+            
+            <div id="arshad">
+                AC2DBarcode pdf417 here working-<br/>
+                <c:AC2DBarcode BrcdType="pdf417" Value="ArshadTest" />
+            </div>
+            
+            <br/><br/>
+            
+            ACBarcodeZone2D code128 -<br/>
+            <c:ACBarcodeZone2D BrcdType="code128" Value="ArshadTest"/> 
+            
+            <br/><br/>
+            
+            ACBarcodeZone2D pdf417 -<br/>
+			<c:ACBarcodeZone2D BrcdType="pdf417" Value="ArshadTest"/>
+            
+            <br/><br/>
+            
+            <!--AC2DBarcodeAC2DBarcodeZoneLightning code128-
+			<c:AC2DBarcodeZoneLightning BrcdType="code128" Value="ArshadTest" />
+            
+            <br/><br/>
+            
+            AC2DBarcodeAC2DBarcodeZoneLightning pdf417-
+			<c:AC2DBarcodeZoneLightning BrcdType="pdf417" Value="ArshadTest" /-->
+            
+            <br/>
+            
+        </body>
+        
+    </html>
+</apex:page>
