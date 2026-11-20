@@ -268,8 +268,10 @@ public String getEncodedBrcd(String brcdVal, String barcdHeight, String barsWidt
 private String getBrcdFormat(String brcdVal,Integer h,Integer  nw,Integer ww, String width){
     String encodedBrcd = parseBarcode(brcdVal);
     System.debug('******* ' + encodedBrcd);
+    Integer barsPx = 0;
+    for (Integer j = 0; j < encodedBrcd.length(); ++j) { barsPx += Integer.valueOf(encodedBrcd.substring(j, j+1)) * nw; }
     
-    String retBarcode = '<table width="'+ width +'" cellpadding=0 cellspacing=0 style="margin-left:auto;margin-right:auto;height:'+ String.valueOf(h) + 'px"><tr style="height:' + String.valueOf(h) + 'px">';
+    String retBarcode = '<table cellpadding=0 cellspacing=0 style="table-layout:fixed;width:'+ barsPx +'px;margin-left:auto;margin-right:auto;height:'+ String.valueOf(h) + 'px"><tr style="height:' + String.valueOf(h) + 'px">';
     for (Integer i = 0; i < encodedBrcd.length(); ++i) { 
         retBarcode += getBCSymbol(encodedBrcd.substring(i, i+1),'black',nw);
         ++i;

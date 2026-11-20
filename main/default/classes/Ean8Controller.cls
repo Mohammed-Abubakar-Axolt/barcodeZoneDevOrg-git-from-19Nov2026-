@@ -126,7 +126,7 @@ private String drawRightGroup(String brcd){
 }
 
 private String drawEncodedValue(String encodedValue,String ht){
-    String tbl='<table width="100%" border="0" cellspacing="0" cellpadding="0"><tr>';
+    String tbl='<table border="0" cellspacing="0" cellpadding="0" style="table-layout:fixed;width:' + (encodedValue.length() * 2) + 'px"><tr>';
     for(Integer i=0; i< encodedValue.length(); ++i){
         if(encodedValue.substring(i,i+1).equals('0')){
             

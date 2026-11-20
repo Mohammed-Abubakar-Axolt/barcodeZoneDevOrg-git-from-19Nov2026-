@@ -103,7 +103,8 @@ public String getBarcode(String brcdVal,Integer h,Integer  nw,Integer ww) {
         ww = 4;
     }
     
-    retBarcode = '<table cellpadding=0 cellspacing=0 style="margin-left:auto;margin-right:auto;height:'+ String.valueOf(h) + 'px"><tr style="height:' + String.valueOf(h) + 'px; width:115px;">';
+    Integer startPx = m_pxSize;
+    retBarcode = '<table cellpadding=0 cellspacing=0 style="table-layout:fixed;width:BARS_WIDTH_PXpx;margin-left:auto;margin-right:auto;height:'+ String.valueOf(h) + 'px"><tr style="height:' + String.valueOf(h) + 'px; width:115px;">';
     retBarcode += getBC39('*', nw, ww);
     retBarcode += getBCSymbol('w', nw, ww);
     for (Integer i = 0; i < brcdVal.length(); ++i) { 
@@ -111,6 +112,7 @@ public String getBarcode(String brcdVal,Integer h,Integer  nw,Integer ww) {
         retBarcode += getBCSymbol('w', nw, ww);
     }
     retBarcode += getBC39('*', nw, ww);
+    retBarcode = retBarcode.replace('BARS_WIDTH_PX', String.valueOf(m_pxSize - startPx));
     retBarcode += '</tr></table>';
     return retBarcode;
 }
