@@ -70,7 +70,7 @@ public String getEncodedBrcd(String brcdVal, String BarcdHeight, String BarsWidt
     String hideText = (brcdValHide)?'none':'';
     Integer length = encodedBrcd.length();
     m_pxSize += 25;
-    String topTbl = '<table cellpadding=0 cellspacing=0   style="height:50px; border-style:none;  border-color:#CCCCCC;  border-width:thin; width:' + String.valueOf(m_pxSize) + 'px; background-color: white;">';
+    String topTbl = '<table cellpadding=0 cellspacing=0   style="border-spacing:0;height:50px; border-style:none;  border-color:#CCCCCC;  border-width:thin; width:' + String.valueOf(m_pxSize) + 'px; background-color: white;">';
     //topTbl += '<tr ><td style="height:10%;" ><div><br/></div></td></tr> <tr ><td style="height:80%; width:90%" >';
                                                                 //style="height:80%; width:90%"
     topTbl += '<tr ><td style="height:10%;" ></td></tr> <tr ><td  >';
@@ -104,7 +104,7 @@ public String getBarcode(String brcdVal,Integer h,Integer  nw,Integer ww) {
     }
     
     Integer startPx = m_pxSize;
-    retBarcode = '<table cellpadding=0 cellspacing=0 style="table-layout:fixed;width:BARS_WIDTH_PXpx;margin-left:auto;margin-right:auto;height:'+ String.valueOf(h) + 'px"><tr style="height:' + String.valueOf(h) + 'px; width:115px;">';
+    retBarcode = '<table cellpadding=0 cellspacing=0 style="border-spacing:0;table-layout:fixed;width:BARS_WIDTH_PXpx;margin-left:auto;margin-right:auto;height:'+ String.valueOf(h) + 'px"><tr style="height:' + String.valueOf(h) + 'px; width:115px;">';
     retBarcode += getBC39('*', nw, ww);
     retBarcode += getBCSymbol('w', nw, ww);
     for (Integer i = 0; i < brcdVal.length(); ++i) { 

@@ -68,16 +68,16 @@ private String getBrcdFormat(String brcd, Boolean brcdValHide){
     System.debug('Barcode String :'+brcd);
    String retEncodedVal;
    String hideText = (brcdValHide)?'none':'';
-   retEncodedVal = '<table cellpadding=0 cellspacing=0 border="0"  style="height:150px;   border-color:#CCCCCC;   width:100px; background-color: white;">';
+   retEncodedVal = '<table cellpadding=0 cellspacing=0 border="0"  style="border-spacing:0;height:150px;   border-color:#CCCCCC;   width:100px; background-color: white;">';
    retEncodedVal += '<tr><td style="height:10%;" ><div><br/></div></td></tr> <tr><td style="height:80%;" >';
-   retEncodedVal += '<table style="background-color: white" width="190" border="0" align="center" cellpadding="0" cellspacing="0">';
+   retEncodedVal += '<table style="border-spacing:0;background-color: white" width="190" border="0" align="center" cellpadding="0" cellspacing="0">';
    retEncodedVal += '<tr>';
-   retEncodedVal += '<td align="left" valign="top"><table width="100%" border="0" cellspacing="0" cellpadding="0">';
-   retEncodedVal += '<tr><td  align="center" valign="bottom"></td><td width="2"></td><td>' ;
+   retEncodedVal += '<td align="left" valign="top"><table border="0" cellspacing="0" cellpadding="0" style="border-spacing:0;table-layout:fixed;width:11.2px">';
+   retEncodedVal += '<tr><td  align="center" valign="bottom" style="width:0.05px"></td><td width="2" style="width:2px"></td><td style="width:9.15px">' ;
    retEncodedVal += drawLeftGuard();
    retEncodedVal += '</td></tr></table></td><td align="left" valign="top">';
    retEncodedVal += drawLeftGroup(brcd);
-   retEncodedVal += '<table width="100%" border="0" cellspacing="0" cellpadding="0"><tr style="display:'+hideText+'">';
+   retEncodedVal += '<table width="100%" border="0" cellspacing="0" cellpadding="0" style="border-spacing:0"><tr style="display:'+hideText+'">';
    retEncodedVal += '<td height="19" align="center" valign="middle">' + Brcd.substring(0,1) + '</td>';
    retEncodedVal += '<td height="19" align="center" valign="middle">' + Brcd.substring(1,2) + '</td>';
    retEncodedVal += '<td height="19" align="center" valign="middle">' + Brcd.substring(2,3) + '</td>';
@@ -87,7 +87,7 @@ private String getBrcdFormat(String brcd, Boolean brcdValHide){
    retEncodedVal += drawCenterGuard();
    retEncodedVal += '</td><td align="left" valign="top">';
    retEncodedVal += drawRightGroup(brcd);
-   retEncodedVal += '<table width="100%" border="0" cellspacing="0" cellpadding="0"><tr style="display:'+hideText+'">';
+   retEncodedVal += '<table width="100%" border="0" cellspacing="0" cellpadding="0" style="border-spacing:0"><tr style="display:'+hideText+'">';
    retEncodedVal += '<td height="19" align="center" valign="middle">' + Brcd.substring(4,5) + '</td>';
    retEncodedVal += '<td height="19" align="center" valign="middle">' + Brcd.substring(5,6) + '</td>';
    retEncodedVal += '<td height="19" align="center" valign="middle">' + Brcd.substring(6,7) + '</td>';   
@@ -112,7 +112,7 @@ private String drawLeftGroup(String brcd){
 
    system.debug('Return Encoded Val:'+retEncodedVal);
 
-   return drawEncodedValue(retEncodedVal,'96');
+   return drawEncodedValue(retEncodedVal,'96', 1564);
 }
 
 private String drawRightGroup(String brcd){
@@ -122,34 +122,38 @@ private String drawRightGroup(String brcd){
       digit = Integer.valueOf(brcd.substring(i,i+1));
       retEncodedVal += codes.get(digit).Rh;
    }
-   return drawEncodedValue(retEncodedVal,'96');
+   return drawEncodedValue(retEncodedVal,'96', 1565);
 }
 
-private String drawEncodedValue(String encodedValue,String ht){
-    String tbl='<table border="0" cellspacing="0" cellpadding="0" style="table-layout:fixed;width:' + (encodedValue.length() * 2) + 'px"><tr>';
+// totalUnits: width (in 1/20 px) the classic PDF renderer gave this part of the barcode.
+private String drawEncodedValue(String encodedValue,String ht, Integer totalUnits){
+    List<Integer> moduleUnits = new List<Integer>();
+    for(Integer i=0; i< encodedValue.length(); ++i){ moduleUnits.add(40); }
+    moduleUnits = BrcdHelper.classicCellWidths(moduleUnits, totalUnits, true);
+    String tbl='<table border="0" cellspacing="0" cellpadding="0" style="border-spacing:0;table-layout:fixed;width:' + BrcdHelper.toPx(totalUnits) + '"><tr>';
     for(Integer i=0; i< encodedValue.length(); ++i){
         if(encodedValue.substring(i,i+1).equals('0')){
-            
-            tbl += '<td width="2" height="'+ ht + '" align="left" valign="top" bgcolor="#ffffff"></td>';
+
+            tbl += '<td style="width:' + BrcdHelper.toPx(moduleUnits[i]) + '" height="'+ ht + '" align="left" valign="top" bgcolor="#ffffff"></td>';
         }else{
-            tbl += '<td width="2" height="'+ ht + '" align="left" valign="top" bgcolor="#000000"></td>';
+            tbl += '<td style="width:' + BrcdHelper.toPx(moduleUnits[i]) + '" height="'+ ht + '" align="left" valign="top" bgcolor="#000000"></td>';
         }
     }
-    
+
     tbl += '</tr></table>';
     return tbl;
 }
 
 private String drawLeftGuard(){
-    return drawEncodedValue('101','110');
+    return drawEncodedValue('101','110', 183);
 }
 
 private String drawCenterGuard(){
-    return drawEncodedValue('01010','110');
+    return drawEncodedValue('01010','110', 279);
 }
 
 private String drawRightGuard(){
-    return drawEncodedValue('101','110');
+    return drawEncodedValue('101','110', 168);
 }
 
 private Integer CalculateChecksum(String code)

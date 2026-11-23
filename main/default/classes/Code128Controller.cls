@@ -254,7 +254,7 @@ public String getEncodedBrcd(String brcdVal, String barcdHeight, String barsWidt
     BrcdFooterText = '  ';
     Integer length = encodedBrcd.length();
     m_pxSize += 25;
-    String topTbl = '<table  cellpadding=0 cellspacing=0 style="height:50px; border-style:none;  border-color:#CCCCCC;  border-width:thin; width:' + String.valueOf(m_pxSize) + 'px; background-color: white;">';
+    String topTbl = '<table  cellpadding=0 cellspacing=0 style="border-spacing:0;height:50px; border-style:none;  border-color:#CCCCCC;  border-width:thin; width:' + String.valueOf(m_pxSize) + 'px; background-color: white;">';
     //topTbl += '<tr ><td style="height:10%;" ><div><br/></div></td></tr> <tr ><td style="height:80%; width:90%" >';
     topTbl += '<tr ><td style="height:10%;" ></td></tr> <tr ><td style="height:80%; width:90%" >';    
     topTbl += encodedBrcd ;
@@ -268,23 +268,29 @@ public String getEncodedBrcd(String brcdVal, String barcdHeight, String barsWidt
 private String getBrcdFormat(String brcdVal,Integer h,Integer  nw,Integer ww, String width){
     String encodedBrcd = parseBarcode(brcdVal);
     System.debug('******* ' + encodedBrcd);
-    Integer barsPx = 0;
-    for (Integer j = 0; j < encodedBrcd.length(); ++j) { barsPx += Integer.valueOf(encodedBrcd.substring(j, j+1)) * nw; }
-    
-    String retBarcode = '<table cellpadding=0 cellspacing=0 style="table-layout:fixed;width:'+ barsPx +'px;margin-left:auto;margin-right:auto;height:'+ String.valueOf(h) + 'px"><tr style="height:' + String.valueOf(h) + 'px">';
-    for (Integer i = 0; i < encodedBrcd.length(); ++i) { 
-        retBarcode += getBCSymbol(encodedBrcd.substring(i, i+1),'black',nw);
+    Integer tableUnits = Integer.valueOf(width) > 0 ? Integer.valueOf(width) * 20 : null;
+    List<Integer> cellUnits = new List<Integer>();
+    for (Integer j = 0; j < encodedBrcd.length(); ++j) { cellUnits.add(Integer.valueOf(encodedBrcd.substring(j, j+1)) * nw * 20); }
+    cellUnits = BrcdHelper.classicCellWidths(cellUnits, tableUnits, false);
+    Integer barsUnits = 0;
+    for (Integer u : cellUnits) { barsUnits += u; }
+    Integer fillerUnits = (tableUnits != null && tableUnits > barsUnits) ? tableUnits - barsUnits : 0;
+
+    String retBarcode = '<table cellpadding=0 cellspacing=0 style="border-spacing:0;table-layout:fixed;width:'+ BrcdHelper.toPx(barsUnits + fillerUnits) +';margin-left:auto;margin-right:auto;height:'+ String.valueOf(h) + 'px"><tr style="height:' + String.valueOf(h) + 'px">';
+    for (Integer i = 0; i < encodedBrcd.length(); ++i) {
+        retBarcode += getBCSymbol(encodedBrcd.substring(i, i+1),'black',BrcdHelper.toPx(cellUnits[i]));
         ++i;
-        retBarcode += getBCSymbol(encodedBrcd.substring(i, i+1),'white',nw);
+        retBarcode += getBCSymbol(encodedBrcd.substring(i, i+1),'white',BrcdHelper.toPx(cellUnits[i]));
     }
+    if (fillerUnits > 0) { retBarcode += '<td style="width:' + BrcdHelper.toPx(fillerUnits) + '"></td>'; }
     retBarcode += '</tr></table>';
     return retBarcode;
 }
 
-private String getBCSymbol(String sym,String clr, Integer w) { 
+private String getBCSymbol(String sym,String clr, String width) {
     m_pxSize += Integer.valueOf(sym);
-    
-    return '<td style="width:'+Integer.valueOf(sym)*w  + 'px;background-color:' + clr + '"></td>';
+
+    return '<td style="width:'+ width + ';background-color:' + clr + '"></td>';
 }
 
 private String getformatBrcdName(String brcdVal){
